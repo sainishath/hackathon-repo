@@ -1,0 +1,17 @@
+{
+  "name": "procurement-express-gateway",
+  "version": "1.0.0",
+  "description": "Node.js Express API Gateway & MongoDB Audit Logger for Institutional Procurement Engine",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.3.1"
+  }
+}

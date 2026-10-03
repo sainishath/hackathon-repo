@@ -3,11 +3,13 @@ import Header from './components/Header';
 import RequisitionForm from './components/RequisitionForm';
 import PipelineStepper from './components/PipelineStepper';
 import VerdictCard from './components/VerdictCard';
+import ComplianceMemo from './components/ComplianceMemo';
 import DirectivesList from './components/DirectivesList';
 import DocumentChecklist from './components/DocumentChecklist';
 import TelemetrySection from './components/TelemetrySection';
 import ClauseDrawer from './components/ClauseDrawer';
 import FormModal from './components/FormModal';
+import AuditLogModal from './components/AuditLogModal';
 
 export default function App() {
   const [presets, setPresets] = useState([]);
@@ -26,15 +28,20 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [selectedClause, setSelectedClause] = useState(null);
   const [selectedForm, setSelectedForm] = useState(null);
+  const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
+  const [gatewayStatus, setGatewayStatus] = useState(null);
 
-  // Load presets on mount
+  // Load presets & gateway status on mount
   useEffect(() => {
     fetch('/api/presets')
       .then((res) => res.json())
-      .then((data) => {
-        setPresets(data);
-      })
+      .then((data) => setPresets(data))
       .catch((err) => console.error('Failed to load presets:', err));
+
+    fetch('/api/status')
+      .then((res) => res.json())
+      .then((data) => setGatewayStatus(data))
+      .catch((err) => console.warn('Gateway status check failed:', err));
 
     // Run initial evaluation
     handleEvaluate(formData, false);
@@ -42,16 +49,31 @@ export default function App() {
 
   const handleEvaluate = async (dataToSubmit, isOmitted) => {
     setLoading(true);
-    const payload = {
-      category: dataToSubmit.category || 'goods',
-      estimated_value_inr: isOmitted ? null : parseFloat(dataToSubmit.estimated_value_inr) || 0,
-      item_description: dataToSubmit.item_description || '',
-      funding_source: dataToSubmit.funding_source || '',
-      department: dataToSubmit.department || '',
-      quotations_received: parseInt(dataToSubmit.quotations_received, 10) || 0,
-      is_emergency: Boolean(dataToSubmit.is_emergency),
-      is_sole_source: Boolean(dataToSubmit.is_sole_source),
-    };
+    let payload = {};
+
+    if (dataToSubmit.text) {
+      payload = {
+        text: dataToSubmit.text,
+        category: dataToSubmit.category || 'goods',
+        estimated_value_inr: isOmitted ? null : parseFloat(dataToSubmit.estimated_value_inr) || null,
+        funding_source: dataToSubmit.funding_source || '',
+        department: dataToSubmit.department || '',
+        quotations_received: parseInt(dataToSubmit.quotations_received, 10) || 0,
+        is_emergency: Boolean(dataToSubmit.is_emergency),
+        is_sole_source: Boolean(dataToSubmit.is_sole_source),
+      };
+    } else {
+      payload = {
+        category: dataToSubmit.category || 'goods',
+        estimated_value_inr: isOmitted ? null : parseFloat(dataToSubmit.estimated_value_inr) || 0,
+        item_description: dataToSubmit.item_description || '',
+        funding_source: dataToSubmit.funding_source || '',
+        department: dataToSubmit.department || '',
+        quotations_received: parseInt(dataToSubmit.quotations_received, 10) || 0,
+        is_emergency: Boolean(dataToSubmit.is_emergency),
+        is_sole_source: Boolean(dataToSubmit.is_sole_source),
+      };
+    }
 
     try {
       const resp = await fetch('/api/evaluate', {
@@ -61,6 +83,25 @@ export default function App() {
       });
       const data = await resp.json();
       setResponse(data);
+
+      if (data.extracted_input) {
+        const ext = data.extracted_input;
+        setFormData((prev) => ({
+          ...prev,
+          category: ext.category || prev.category,
+          estimated_value_inr: ext.estimated_value_inr,
+          department: ext.department || prev.department,
+          funding_source: ext.funding_source || prev.funding_source,
+          is_emergency: ext.is_emergency ?? prev.is_emergency,
+          is_sole_source: ext.is_sole_source ?? prev.is_sole_source,
+          quotations_received: ext.quotations_received ?? prev.quotations_received,
+        }));
+        if (ext.estimated_value_inr === null) {
+          setOmitValue(true);
+        } else {
+          setOmitValue(false);
+        }
+      }
     } catch (err) {
       console.error('Evaluation request failed:', err);
     } finally {
@@ -93,6 +134,7 @@ export default function App() {
       title: 'Procurement Statutory Compliance Audit Report',
       timestamp: new Date().toISOString(),
       standard: 'GFR 2017 & Manual for Procurement of Goods 2024',
+      gateway: 'Node.js Express + MongoDB',
       input: formData,
       response: response,
     };
@@ -108,9 +150,11 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col selection:bg-emerald-500/25 selection:text-emerald-300">
+    <div className="min-h-screen flex flex-col bg-[#070A11] text-slate-100 selection:bg-emerald-500/25 selection:text-emerald-300">
       <Header
         providerUsed={response?._provider_used}
+        gatewayStatus={gatewayStatus}
+        onOpenAudits={() => setIsAuditModalOpen(true)}
         onExportAudit={handleExportAudit}
       />
 
@@ -119,7 +163,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-medium bg-slate-800/80 border border-slate-700/60 text-slate-200 mb-5 shadow-inner">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="font-mono">Financial Rules & Purchase Compliance</span>
+            <span className="font-mono">Financial Rules & Purchase Compliance • MERN Architecture</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-4 leading-tight">
@@ -130,10 +174,9 @@ export default function App() {
           </h1>
 
           <p className="max-w-3xl mx-auto text-sm sm:text-base text-slate-400 font-normal leading-relaxed">
-            Step-by-step rules, approval limits, and required forms based on{' '}
-            <strong className="text-slate-200">GFR 2017</strong>, the{' '}
-            <strong className="text-slate-200">2024 Goods Manual</strong>, and{' '}
-            <strong className="text-slate-200">Campus Delegation of Powers</strong>.
+            Powered by a <strong className="text-slate-200">Node/Express Gateway</strong> with{' '}
+            <strong className="text-slate-200">MongoDB Audit Logging</strong> and deterministic legal reasoning based on{' '}
+            <strong className="text-slate-200">GFR 2017 & Goods Manual 2024</strong>.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 max-w-5xl mx-auto mt-8 text-left">
@@ -165,7 +208,8 @@ export default function App() {
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-20 space-y-10">
-        {/* Section 1: Intake Form */}
+        
+        {/* Section 1: Requisition Form */}
         <RequisitionForm
           presets={presets}
           formData={formData}
@@ -184,21 +228,28 @@ export default function App() {
           loading={loading}
         />
 
-        {/* Section 3: Verdict Determination & Procedural Directives */}
+        {/* Section 3: Verdict Determination & Statutory Compliance Memo */}
         <section id="verdict-section" className="space-y-6">
           <div className="pb-1">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-              3. Official Purchase Decision & Next Steps
+              3. Official Purchase Decision & Compliance Memo
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Deterministic compliance result, required approvers, and step-by-step instructions.
+              Deterministic compliance result, required approvers, and synthesized compliance memo.
             </p>
           </div>
 
           <VerdictCard
             response={response}
             providerUsed={response?._provider_used}
+          />
+
+          {/* Statutory Compliance Memo */}
+          <ComplianceMemo
+            response={response}
+            onInspectClause={(cid) => setSelectedClause(cid)}
+            onOpenForm={(fid) => setSelectedForm(fid)}
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -220,7 +271,7 @@ export default function App() {
         <TelemetrySection presets={presets} />
       </main>
 
-      {/* Slide-over Drawer & Document Preview Modal */}
+      {/* Slide-over Drawers & Modals */}
       <ClauseDrawer
         clauseId={selectedClause}
         onClose={() => setSelectedClause(null)}
@@ -231,17 +282,23 @@ export default function App() {
         onClose={() => setSelectedForm(null)}
       />
 
+      {/* MongoDB Audit Log Drawer */}
+      <AuditLogModal
+        isOpen={isAuditModalOpen}
+        onClose={() => setIsAuditModalOpen(false)}
+      />
+
       {/* Footer */}
-      <footer className="border-t border-[#1E293B] py-8 text-center text-xs text-slate-500 bg-[#070A11]/50">
+      <footer className="border-t border-[#1E293B] py-8 text-center text-xs text-slate-500 bg-[#070A11]">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
             <span className="font-mono text-slate-400">
-              PROCUREGUARD React Engine v4.8 • GFR 2017 / MGP 2024
+              PROCUREGUARD MERN Engine • Node.js / Express / MongoDB / React
             </span>
           </div>
           <p className="text-slate-500 font-mono">
-            Pure deterministic threshold validation. Zero fabricated citations.
+            FastAPI Microservice on Port 8000 • Express Gateway on Port 5000
           </p>
         </div>
       </footer>

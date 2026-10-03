@@ -18,3 +18,9 @@ ENV/
 Thumbs.db
 .vscode/
 .idea/
+
+# Node / Frontend Build artifacts
+node_modules/
+dist/
+mern-stack/**/node_modules/
+mern-stack/**/dist/
