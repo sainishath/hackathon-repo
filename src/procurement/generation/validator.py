@@ -69,4 +69,5 @@ def downgrade_response_to_escalation(
         checklist=[],
         missing_info=response.missing_info,
         escalations=filtered_escalations,
+        provider_used=response.provider_used,
     )

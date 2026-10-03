@@ -125,7 +125,7 @@ class OllamaLLMClient(BaseLLMClient):
 
     def __init__(self, base_url: Optional[str] = None, model: Optional[str] = None):
         self.base_url = (base_url or settings.ollama_base_url).rstrip("/")
-        self.model = model or settings.ollama_model
+        self.model = model or os.getenv("OLLAMA_MODEL", "llama3")
 
     def generate_json(self, prompt: str, response_schema: type[BaseModel]) -> dict[str, Any]:
         import requests
@@ -146,7 +146,7 @@ class OllamaLLMClient(BaseLLMClient):
         }
 
         try:
-            resp = requests.post(f"{self.base_url}/api/generate", json=payload, timeout=45)
+            resp = requests.post(f"{self.base_url}/api/generate", json=payload, timeout=5)
             resp.raise_for_status()
             res_json = resp.json()
             raw_response = res_json.get("response", "{}")
@@ -210,6 +210,7 @@ class GeminiLLMClient(BaseLLMClient):
                 resp = model_inst.generate_content(
                     full_prompt,
                     generation_config={"response_mime_type": "application/json", "temperature": 0.1},
+                    request_options={"timeout": 5.0},
                 )
                 clean_text = _clean_json_str(resp.text)
                 data = json.loads(clean_text)

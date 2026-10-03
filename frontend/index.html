@@ -221,7 +221,7 @@
               Ruleset: Goods Manual 2024 & GFR 2017
             </span>
           </div>
-          <p class="text-[11px] text-slate-400 hidden sm:block">Government & University Procurement Compliance Guide</p>
+          <p class="text-[11px] text-slate-400 hidden sm:block">Government & Institutional Procurement Compliance Guide</p>
         </div>
       </div>
 
@@ -485,7 +485,7 @@
           <i data-lucide="git-commit" class="w-4 h-4 text-emerald-400"></i>
           <div>
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono">
-              2. How Your Request Is Checked
+              2. How Your Request Is Checked (4-Stage Compliance Gate)
             </h3>
             <p class="text-[11px] text-slate-400 mt-0.5">Every purchase passes through four strict verification stages before any recommendation is made.</p>
           </div>
@@ -548,7 +548,7 @@
       <div class="pb-1">
         <h2 class="text-lg font-bold text-white flex items-center gap-2">
           <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400"></i>
-          3. Official Decision & Action Plan
+          3. Official Purchase Decision & Next Steps
         </h2>
         <p class="text-xs text-slate-400 mt-0.5">Deterministic compliance result, required approvers, and step-by-step instructions.</p>
       </div>
@@ -696,7 +696,7 @@
         <div>
           <h2 class="text-lg font-bold text-white flex items-center gap-2">
             <i data-lucide="cpu" class="w-5 h-5 text-cyan-400"></i>
-            4. Accuracy & Automated Verification
+            4. System Accuracy & Automated Tests
           </h2>
           <p class="text-xs text-slate-400 mt-0.5">Verifying search accuracy against official government rules.</p>
         </div>
@@ -993,6 +993,11 @@
     const sliderBadge = document.getElementById('slider-threshold-rule-badge');
 
     function sliderValueToINR(pct) {
+      if (Math.abs(pct - 25) < 1.5) return 50000;
+      if (Math.abs(pct - 50) < 1.5) return 500000;
+      if (Math.abs(pct - 75) < 1.5) return 2500000;
+      if (pct < 1) return 0;
+
       if (pct <= 25) {
         return Math.round((pct / 25) * 50000);
       } else if (pct <= 50) {
@@ -1098,9 +1103,6 @@
 
     function applyPreset(preset) {
       const inp = Object.assign({}, preset.input);
-      if (preset.id === 'case_superseded_version_query') {
-        inp.estimated_value_inr = 50000.01;
-      }
       document.getElementById('input-category').value = inp.category || 'goods';
       
       if (inp.estimated_value_inr === null || inp.estimated_value_inr === undefined) {
@@ -1236,19 +1238,19 @@
           providerBadge.className = 'font-mono text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5';
           providerBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span>⚡ Powered by Gemini 2.5 Flash</span>`;
         }
-        if (hudIndicator) hudIndicator.textContent = 'AI Engine: Gemini 2.5 Flash (Cloud)';
+        if (hudIndicator) hudIndicator.textContent = '⚡ Powered by Gemini 2.5 Flash';
       } else if (provUsed.includes('ollama') || provUsed.includes('llama')) {
         if (providerBadge) {
           providerBadge.className = 'font-mono text-xs px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center gap-1.5';
-          providerBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span><span>🦙 Powered by Local Ollama Llama 3</span>`;
+          providerBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span><span>🦙 Powered by Ollama Llama 3</span>`;
         }
-        if (hudIndicator) hudIndicator.textContent = 'AI Engine: Local Ollama (Llama 3)';
+        if (hudIndicator) hudIndicator.textContent = '🦙 Powered by Ollama Llama 3';
       } else {
         if (providerBadge) {
           providerBadge.className = 'font-mono text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 flex items-center gap-1.5';
-          providerBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span>🛡️ Deterministic Compliance Engine</span>`;
+          providerBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span>🛡️ Deterministic Engine (Offline)</span>`;
         }
-        if (hudIndicator) hudIndicator.textContent = 'AI Engine: Deterministic Engine';
+        if (hudIndicator) hudIndicator.textContent = '🛡️ Deterministic Engine (Offline)';
       }
 
       // Populate metrics
@@ -1318,9 +1320,10 @@
           const checkDiv = document.createElement('div');
           checkDiv.className = 'flex items-center justify-between p-3.5 rounded-xl bg-[#070A11] border border-[#1E293B] specular-inset';
           
+          const formDisplayName = (c.form_id || '').replace('.md', '').toUpperCase();
           const formBtn = c.form_id ? 
             `<button onclick="openFormModal('${c.form_id}')" class="text-[11px] font-mono font-medium text-teal-400 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 px-2.5 py-1 rounded-lg flex items-center gap-1 transition" title="Click to view, fill, and print required official forms">
-              <i data-lucide="file-text" class="w-3 h-3"></i> View Form ${c.form_id}
+              <i data-lucide="file-text" class="w-3 h-3"></i> View ${formDisplayName}
             </button>` : '';
 
           checkDiv.innerHTML = `
