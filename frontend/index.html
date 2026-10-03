@@ -3,38 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Institutional Procurement Compliance Engine | GFR 2017 & Manual 2024</title>
+  <title>PROCUREGUARD // Statutory Procurement Compliance Engine</title>
+
+  <!-- Typography & Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Core Libraries: Tailwind, Lucide, GSAP + ScrollTrigger, Lenis Smooth Scroll -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
           colors: {
-            brand: {
-              bg: '#090D16',
-              card: '#0F172A',
-              cardHover: '#131F37',
-              border: '#1E293B',
-              borderLight: '#334155',
-              text: '#F8FAFC',
-              muted: '#94A3B8',
-            },
-            status: {
-              decided: '#10B981',
-              decidedBg: 'rgba(16, 185, 129, 0.12)',
-              decidedBorder: 'rgba(16, 185, 129, 0.35)',
-              needsInfo: '#F59E0B',
-              needsInfoBg: 'rgba(245, 158, 11, 0.12)',
-              needsInfoBorder: 'rgba(245, 158, 11, 0.35)',
-              escalate: '#EF4444',
-              escalateBg: 'rgba(239, 68, 68, 0.12)',
-              escalateBorder: 'rgba(239, 68, 68, 0.35)',
-            }
+            obsidian: '#070A11',
+            slateSurface: '#0F172A',
+            slateSub: '#131F37',
+            slateBorder: '#1E293B',
+            slateBorderLight: 'rgba(255, 255, 255, 0.09)',
+            emeraldAccent: '#10B981',
+            amberAccent: '#F59E0B',
+            crimsonAccent: '#EF4444',
+            cyanAccent: '#06B6D4',
           },
           fontFamily: {
             sans: ['"Plus Jakarta Sans"', 'sans-serif'],
@@ -44,36 +41,125 @@
       }
     }
   </script>
+
   <style>
+    /* Global Base */
+    html.lenis, html.lenis body {
+      height: auto;
+    }
+    .lenis.lenis-smooth {
+      scroll-behavior: auto !important;
+    }
+    .lenis.lenis-smooth [data-lenis-prevent] {
+      overscroll-behavior: contain;
+    }
+    .lenis.lenis-stopped {
+      overflow: hidden;
+    }
+    .lenis.lenis-scrolling iframe {
+      pointer-events: none;
+    }
+
     body {
-      background-color: #090D16;
+      background-color: #070A11;
       color: #F8FAFC;
       font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 80% 30%, rgba(6, 182, 212, 0.04) 0%, transparent 40%),
+        radial-gradient(circle at 10% 80%, rgba(14, 165, 233, 0.03) 0%, transparent 50%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px;
     }
-    .glass-card {
+
+    /* Scroll Progress Line */
+    #scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #10B981, #06B6D4, #3B82F6);
+      width: 0%;
+      z-index: 100;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+    }
+
+    /* Spotlight Glass Cards */
+    .spotlight-card {
+      position: relative;
       background: #0F172A;
-      border: 1px solid #1E293B;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 1rem;
+      overflow: hidden;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
     }
-    .glass-card:hover {
-      border-color: #334155;
+    .spotlight-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(700px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(16, 185, 129, 0.08), transparent 45%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 1;
     }
-    .glow-decided {
-      box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.3);
+    .spotlight-card:hover {
+      border-color: rgba(255, 255, 255, 0.16);
+      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.6);
     }
-    .glow-needs-info {
-      box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.3);
+    .spotlight-card:hover::before {
+      opacity: 1;
     }
-    .glow-escalate {
-      box-shadow: 0 0 25px -5px rgba(239, 68, 68, 0.3);
+
+    /* Specular Inset & Highlights */
+    .specular-inset {
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
-    /* Custom scrollbar */
+    .specular-border {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0) 100%);
+    }
+
+    /* Range Slider Styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: transparent;
+    }
+    input[type=range]:focus {
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      height: 6px;
+      cursor: pointer;
+      background: #1E293B;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #10B981;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -6px;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      background: #34D399;
+    }
+
+    /* Custom Scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #090D16;
+      background: #070A11;
     }
     ::-webkit-scrollbar-thumb {
       background: #1E293B;
@@ -82,64 +168,89 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #334155;
     }
-    .specular-border {
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.025) 0%, rgba(255, 255, 255, 0) 100%);
-    }
-    .specular-inset {
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    }
-    .specular-primary {
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    }
+
+    /* Drawer Animation Classes */
     .drawer-open {
       transform: translateX(0%);
     }
     .drawer-closed {
       transform: translateX(100%);
     }
+
+    /* Printable Document Styling */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #print-modal-container, #print-modal-container * {
+        visibility: visible;
+      }
+      #print-modal-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: white !important;
+        color: black !important;
+      }
+    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-emerald-500/20 selection:text-emerald-400">
+<body class="min-h-screen flex flex-col selection:bg-emerald-500/25 selection:text-emerald-300">
 
-  <!-- Top Navigation Bar -->
-  <header class="sticky top-0 z-40 bg-[#090D16]/90 backdrop-blur-xl border-b border-[#1E293B]">
+  <!-- Scroll Progress Indicator -->
+  <div id="scroll-progress"></div>
+
+  <!-- Top Sticky Navigation Bar -->
+  <header class="sticky top-0 z-40 bg-[#070A11]/85 backdrop-blur-2xl border-b border-[#1E293B] transition-all duration-300" id="main-header">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-          <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
+      
+      <!-- Brand & Standard Indicator -->
+      <div class="flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 specular-inset">
+          <i data-lucide="shield-alert" class="w-5 h-5 text-white"></i>
         </div>
         <div>
           <div class="flex items-center gap-2">
             <span class="font-bold text-base tracking-tight text-white font-mono">PROCURE<span class="text-emerald-400">GUARD</span></span>
-            <span class="text-[10px] font-mono tracking-widest uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">GFR 2017 & Manual 2024</span>
+            <span class="text-[10px] font-mono tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">
+              GFR 2017 & Manual 2024
+            </span>
           </div>
-          <p class="text-xs text-brand-muted hidden sm:block">Institutional Statutory Compliance Engine</p>
+          <p class="text-[11px] text-slate-400 hidden sm:block">Institutional Compliance & Statutory Threshold Engine</p>
         </div>
       </div>
 
-      <!-- Center: Live LLM Badge -->
-      <div class="hidden md:flex items-center bg-[#0F172A] border border-[#1E293B] px-3.5 py-1 rounded-full gap-2 specular-inset">
+      <!-- Center: Live LLM Cascade Beacon -->
+      <div class="hidden md:flex items-center bg-[#0F172A] border border-[#1E293B] px-3.5 py-1 rounded-full gap-2.5 specular-inset">
         <span class="relative flex h-2 w-2">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
         </span>
-        <span class="font-mono text-xs text-emerald-400 font-semibold">[● ACTIVE] Gemini 2.5 Flash // Resilient Ollama Failover</span>
+        <span class="font-mono text-xs text-emerald-400 font-semibold tracking-wide" id="hud-model-indicator">
+          [● ACTIVE] Gemini 2.5 Flash // Resilient Ollama Failover
+        </span>
         <span class="text-slate-600 font-mono text-xs">|</span>
-        <span class="font-mono text-[11px] text-slate-400">69 Clauses Indexed</span>
+        <span class="font-mono text-[11px] text-cyan-300 font-medium">69 Clauses Indexed</span>
       </div>
 
-      <nav class="flex items-center gap-3 text-xs font-medium text-brand-muted">
-        <a href="#intake-section" class="hover:text-white transition hidden lg:flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-800/60">
+      <!-- Action Buttons -->
+      <nav class="flex items-center gap-2 sm:gap-3 text-xs font-medium">
+        <button id="sound-toggle-btn" class="p-2 rounded-lg bg-[#0F172A] hover:bg-slate-800 text-slate-400 hover:text-white border border-[#1E293B] transition" title="Toggle Tactile Feedback Audio">
+          <i data-lucide="volume-2" class="w-4 h-4"></i>
+        </button>
+
+        <a href="#intake-section" class="hover:text-white text-slate-300 transition hidden lg:flex items-center gap-1 py-1 px-2.5 rounded-lg hover:bg-slate-800/60">
           <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Intake
         </a>
-        <a href="#verdict-section" class="hover:text-white transition hidden lg:flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-800/60">
-          <i data-lucide="zap" class="w-3.5 h-3.5"></i> Directives
+        <a href="#verdict-section" class="hover:text-white text-slate-300 transition hidden lg:flex items-center gap-1 py-1 px-2.5 rounded-lg hover:bg-slate-800/60">
+          <i data-lucide="zap" class="w-3.5 h-3.5 text-emerald-400"></i> Directives
         </a>
-        <a href="#telemetry-section" class="hover:text-white transition hidden lg:flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-800/60">
-          <i data-lucide="activity" class="w-3.5 h-3.5"></i> Benchmarks
+        <a href="#telemetry-section" class="hover:text-white text-slate-300 transition hidden lg:flex items-center gap-1 py-1 px-2.5 rounded-lg hover:bg-slate-800/60">
+          <i data-lucide="activity" class="w-3.5 h-3.5 text-cyan-400"></i> Benchmarks
         </a>
-        <button onclick="exportAuditReport()" class="px-3 py-1.5 rounded-lg bg-[#0F172A] hover:bg-slate-800 text-slate-200 border border-[#1E293B] hover:border-slate-700 transition flex items-center gap-1.5 font-mono text-xs specular-inset">
+
+        <button onclick="exportAuditReport()" class="px-3.5 py-1.5 rounded-lg bg-[#0F172A] hover:bg-slate-800 text-slate-200 border border-[#1E293B] hover:border-slate-700 transition flex items-center gap-1.5 font-mono text-xs specular-inset">
           <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-400"></i>
           <span>Export Audit</span>
         </button>
@@ -147,36 +258,68 @@
     </div>
   </header>
 
-  <!-- Hero Header -->
-  <section class="relative pt-10 pb-6 overflow-hidden">
-    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.15),rgba(255,255,255,0))]"></div>
+  <!-- Hero Section -->
+  <section class="relative pt-12 pb-8 overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-slate-800/80 border border-slate-700/60 text-slate-300 mb-4 shadow-inner">
-        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-400"></i>
-        <span>Deterministic Rule Evaluation + Grounded Hybrid RAG Pipeline</span>
+      
+      <!-- Gating Ribbon -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-medium bg-slate-800/80 border border-slate-700/60 text-slate-200 mb-5 shadow-inner">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="font-mono">Deterministic Rules Engine + Grounded Hybrid RAG Pipeline</span>
       </div>
-      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">
-        Institutional Procurement <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">Compliance Engine</span>
+
+      <!-- Main Headline -->
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-4 leading-tight">
+        Institutional Statutory <br class="hidden sm:inline" />
+        <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
+          Compliance & Directive Engine
+        </span>
       </h1>
-      <p class="max-w-2xl mx-auto text-sm sm:text-base text-brand-muted font-normal">
-        Statutory enforcement conforming to <strong class="text-slate-200">GFR 2017</strong>, <strong class="text-slate-200">Goods Manual 2024 (Paras 4.12 & 4.13)</strong>, and <strong class="text-slate-200">Institute Annex 2026</strong>.
-        The LLM never fabricates thresholds—strict legal rules govern sanctions.
+
+      <p class="max-w-3xl mx-auto text-sm sm:text-base text-slate-400 font-normal leading-relaxed">
+        Strict legal enforcement under <strong class="text-slate-200">GFR 2017</strong>, <strong class="text-slate-200">Manual for Procurement of Goods 2024 (Paras 4.12 & 4.13)</strong>, and <strong class="text-slate-200">Institute Annex 2026</strong>.
+        The LLM never invents thresholds or authorities—mathematical boundary rules determine sanctions.
       </p>
+
+      <!-- Key Performance Badges -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-4xl mx-auto mt-8 text-left">
+        <div class="p-3 rounded-xl bg-[#0F172A]/70 border border-[#1E293B] specular-inset">
+          <div class="text-[10px] font-mono text-slate-400 uppercase">Direct Purchase Limit</div>
+          <div class="text-base font-bold text-emerald-400 font-mono mt-0.5">₹ 50,000.00</div>
+          <div class="text-[10px] text-slate-500">MGP 2024 Para 4.12</div>
+        </div>
+        <div class="p-3 rounded-xl bg-[#0F172A]/70 border border-[#1E293B] specular-inset">
+          <div class="text-[10px] font-mono text-slate-400 uppercase">LPC Upper Limit</div>
+          <div class="text-base font-bold text-teal-300 font-mono mt-0.5">₹ 5,00,000.00</div>
+          <div class="text-[10px] text-slate-500">Manual 2024 Para 4.13</div>
+        </div>
+        <div class="p-3 rounded-xl bg-[#0F172A]/70 border border-[#1E293B] specular-inset">
+          <div class="text-[10px] font-mono text-slate-400 uppercase">Automated Cases</div>
+          <div class="text-base font-bold text-cyan-300 font-mono mt-0.5">10/10 Verified</div>
+          <div class="text-[10px] text-slate-500">100% Boundary Passing</div>
+        </div>
+        <div class="p-3 rounded-xl bg-[#0F172A]/70 border border-[#1E293B] specular-inset">
+          <div class="text-[10px] font-mono text-slate-400 uppercase">Evaluation Latency</div>
+          <div class="text-base font-bold text-emerald-300 font-mono mt-0.5" id="hero-latency-kpi">~1.8 ms</div>
+          <div class="text-[10px] text-slate-500">Deterministic Engine</div>
+        </div>
+      </div>
+
     </div>
   </section>
 
-  <!-- Main Content Layout -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-10">
+  <!-- Main App Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-20 space-y-10">
 
-    <!-- Intake Card & Presets -->
-    <section id="intake-section" class="glass-card rounded-2xl p-6 sm:p-8 transition-all">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#1E293B] gap-4">
+    <!-- Section 1: Requisition Intake Card & Interactive Threshold Slider -->
+    <section id="intake-section" class="spotlight-card p-6 sm:p-8 scroll-reveal">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-[#1E293B] gap-4">
         <div>
-          <h2 class="text-lg font-bold text-white flex items-center gap-2">
-            <i data-lucide="clipboard-list" class="w-5 h-5 text-emerald-400"></i>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2.5">
+            <i data-lucide="clipboard-pen" class="w-5 h-5 text-emerald-400"></i>
             Requisition Intake & Case Specifications
           </h2>
-          <p class="text-xs text-brand-muted mt-0.5">Parameters are evaluated with mathematical boundary inclusivity before retrieval.</p>
+          <p class="text-xs text-slate-400 mt-0.5">Input parameters are evaluated with mathematical boundary inclusivity before retrieval.</p>
         </div>
 
         <div class="flex items-center gap-2">
@@ -186,26 +329,23 @@
         </div>
       </div>
 
-      <!-- Quick Scenario Presets Bar -->
-      <div class="pt-5 pb-2">
-        <div class="flex items-center justify-between mb-2">
+      <!-- Quick Benchmark Presets -->
+      <div class="pt-5 pb-3">
+        <div class="flex items-center justify-between mb-2.5">
           <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <i data-lucide="play-circle" class="w-3.5 h-3.5 text-cyan-400"></i> Quick Scenario Benchmark Presets:
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i> 10 Statutory Benchmark Presets:
           </span>
-          <span class="text-[11px] text-slate-500">Click any preset pill to load & evaluate</span>
+          <span class="text-[11px] text-slate-500">Click any pill to load & test</span>
         </div>
         <div id="presets-container" class="flex flex-wrap gap-2 py-1">
-          <!-- Dynamically injected preset buttons -->
-          <div class="animate-pulse flex gap-2">
-            <div class="h-7 w-28 bg-slate-800 rounded-lg"></div>
-            <div class="h-7 w-32 bg-slate-800 rounded-lg"></div>
-            <div class="h-7 w-36 bg-slate-800 rounded-lg"></div>
-          </div>
+          <!-- Dynamically populated preset buttons -->
         </div>
       </div>
 
       <!-- Form Inputs Grid -->
-      <form id="evaluation-form" class="mt-6 space-y-6">
+      <form id="evaluation-form" class="mt-5 space-y-6">
+        
+        <!-- Primary Row: Category, Value with Live Words, Quotations -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
           <!-- Category -->
@@ -213,7 +353,7 @@
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
               Category <span class="text-emerald-400 font-mono">⚡ Required</span>
             </label>
-            <select id="input-category" class="w-full bg-[#090D16] border border-[#1E293B] rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+            <select id="input-category" class="w-full bg-[#070A11] border border-[#1E293B] rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 transition">
               <option value="goods" selected>Goods (Standard Consumables / Equipment)</option>
               <option value="services">Services (Consulting / AMC / Outsourced)</option>
               <option value="works">Works (Civil / Electrical / Fabrication)</option>
@@ -221,21 +361,25 @@
             </select>
           </div>
 
-          <!-- Estimated Value (INR) -->
+          <!-- Estimated Value (INR) + Word Formulation -->
           <div>
             <div class="flex items-center justify-between mb-2">
               <label class="text-xs font-semibold uppercase tracking-wider text-slate-300">
                 Estimated Value (INR) <span class="text-emerald-400 font-mono">⚡ Required</span>
               </label>
-              <span id="inr-formatted-label" class="font-mono text-xs text-emerald-400 font-medium">₹ 50,000.00</span>
+              <span id="inr-formatted-label" class="font-mono text-xs text-emerald-400 font-bold">₹ 50,000.00</span>
             </div>
             <div class="relative">
               <span class="absolute left-3.5 top-2.5 text-slate-500 font-mono text-sm">₹</span>
-              <input id="input-value" type="number" step="0.01" min="0" value="50000" placeholder="e.g. 50000.00" class="w-full bg-[#090D16] border border-[#1E293B] rounded-xl pl-8 pr-3.5 py-2.5 text-sm font-mono text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition">
+              <input id="input-value" type="number" step="0.01" min="0" value="50000" placeholder="e.g. 50000.00" class="w-full bg-[#070A11] border border-[#1E293B] rounded-xl pl-8 pr-3.5 py-2.5 text-sm font-mono text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition">
             </div>
-            <div class="flex items-center gap-2 mt-1.5">
-              <input id="check-omit-value" type="checkbox" class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0 focus:ring-offset-0">
-              <label for="check-omit-value" class="text-[11px] text-slate-400 cursor-pointer">Omit value to test <code class="text-amber-400 font-mono">NEEDS_INFO</code> gating</label>
+            
+            <div class="flex items-center justify-between mt-1.5">
+              <span id="inr-words-label" class="text-[10px] text-slate-400 italic truncate max-w-[200px]">Rupees Fifty Thousand Only</span>
+              <div class="flex items-center gap-1.5">
+                <input id="check-omit-value" type="checkbox" class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                <label for="check-omit-value" class="text-[11px] text-slate-400 cursor-pointer">Omit value (<code class="text-amber-400 font-mono">NEEDS_INFO</code>)</label>
+              </div>
             </div>
           </div>
 
@@ -244,43 +388,58 @@
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
               Quotations Received <span class="text-slate-500 font-normal">(Min 3 for LPC/LTE)</span>
             </label>
-            <div class="relative">
-              <input id="input-quotes" type="number" min="0" max="50" value="0" class="w-full bg-[#090D16] border border-[#1E293B] rounded-xl px-3.5 py-2.5 text-sm font-mono text-white focus:outline-none focus:border-emerald-500 transition">
-            </div>
-            <p class="text-[11px] text-slate-500 mt-1">LPC & LTE require at least 3 formal quotation bids.</p>
+            <input id="input-quotes" type="number" min="0" max="50" value="0" class="w-full bg-[#070A11] border border-[#1E293B] rounded-xl px-3.5 py-2.5 text-sm font-mono text-white focus:outline-none focus:border-emerald-500 transition">
+            <p class="text-[11px] text-slate-500 mt-1">LPC & LTE mandate at least 3 formal quotation bids.</p>
           </div>
 
         </div>
 
+        <!-- Interactive Logarithmic Statutory Threshold Range Slider -->
+        <div class="p-4 rounded-xl bg-[#070A11]/60 border border-[#1E293B] specular-inset space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+              <i data-lucide="sliders" class="w-3.5 h-3.5 text-emerald-400"></i>
+              Interactive Statutory Threshold Slider:
+            </span>
+            <span id="slider-threshold-rule-badge" class="font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+              Direct Purchase (≤ ₹50,000)
+            </span>
+          </div>
+
+          <input id="threshold-slider" type="range" min="0" max="100" value="25" class="w-full">
+
+          <div class="flex justify-between text-[10px] font-mono text-slate-500 pt-1">
+            <span>₹0 (Direct)</span>
+            <span class="text-emerald-400 font-semibold">₹50k (Direct Cap)</span>
+            <span class="text-teal-400 font-semibold">₹5L (LPC Cap)</span>
+            <span class="text-blue-400 font-semibold">₹25L (LTE Cap)</span>
+            <span>₹1Cr+ (Open Tender)</span>
+          </div>
+        </div>
+
+        <!-- Secondary Row: Item Spec, Funding, Department & Special Flags -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Item Description -->
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
-              Item or Service Specification <span class="text-emerald-400 font-mono">⚡ Required</span>
+              Item or Service Technical Specification <span class="text-emerald-400 font-mono">⚡ Required</span>
             </label>
-            <textarea id="input-description" rows="2" placeholder="Describe the item, operational purpose, and technical specifications..." class="w-full bg-[#090D16] border border-[#1E293B] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition">Department specialized printer and high yield cartridges</textarea>
+            <textarea id="input-description" rows="2" placeholder="Describe the item, operational purpose, and technical specifications..." class="w-full bg-[#070A11] border border-[#1E293B] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition">Department specialized printer and high yield cartridges</textarea>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- Funding Source -->
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
-                Budget / Funding Source
-              </label>
-              <input id="input-funding" type="text" value="Student Laboratory Budget" class="w-full bg-[#090D16] border border-[#1E293B] rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Funding Source</label>
+              <input id="input-funding" type="text" value="Student Laboratory Budget" class="w-full bg-[#070A11] border border-[#1E293B] rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 transition">
             </div>
 
-            <!-- Department -->
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
-                Originating Department
-              </label>
-              <input id="input-department" type="text" value="Mechanical Engineering" class="w-full bg-[#090D16] border border-[#1E293B] rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Originating Department</label>
+              <input id="input-department" type="text" value="Mechanical Engineering" class="w-full bg-[#070A11] border border-[#1E293B] rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 transition">
             </div>
 
-            <!-- Special Flags -->
+            <!-- Exception Flags -->
             <div class="sm:col-span-2 flex flex-wrap gap-4 pt-1">
-              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-[#090D16] border border-[#1E293B] cursor-pointer hover:border-slate-700 transition flex-1">
+              <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-[#070A11] border border-[#1E293B] cursor-pointer hover:border-slate-700 transition flex-1">
                 <input id="check-emergency" type="checkbox" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-rose-500 focus:ring-0">
                 <div>
                   <div class="text-xs font-semibold text-rose-300">Urgent Breakdown / Emergency</div>
@@ -288,7 +447,7 @@
                 </div>
               </label>
 
-              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-[#090D16] border border-[#1E293B] cursor-pointer hover:border-slate-700 transition flex-1">
+              <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-[#070A11] border border-[#1E293B] cursor-pointer hover:border-slate-700 transition flex-1">
                 <input id="check-sole-source" type="checkbox" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-amber-500 focus:ring-0">
                 <div>
                   <div class="text-xs font-semibold text-amber-300">Proprietary / Sole Source (PAC)</div>
@@ -299,22 +458,24 @@
           </div>
         </div>
 
+        <!-- Submit Evaluation Button -->
         <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div class="flex items-center gap-2 text-xs text-brand-muted">
+          <div class="flex items-center gap-2 text-xs text-slate-400">
             <i data-lucide="info" class="w-4 h-4 text-emerald-400"></i>
-            <span>Engine automatically applies 2024 thresholds; overrides deprecated 2017/2022 rules.</span>
+            <span>Engine automatically resolves 2024 thresholds; overrides deprecated 2017/2022 clauses.</span>
           </div>
 
-          <button id="submit-evaluate-btn" type="submit" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-sm tracking-wide shadow-lg shadow-emerald-500/25 transition-all flex items-center justify-center gap-2">
+          <button id="submit-evaluate-btn" type="submit" class="w-full sm:w-auto px-7 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-sm tracking-wide shadow-lg shadow-emerald-500/25 transition-all flex items-center justify-center gap-2 specular-inset active:scale-95">
             <i data-lucide="zap" class="w-4 h-4"></i>
             <span>Evaluate Statutory Compliance</span>
           </button>
         </div>
+
       </form>
     </section>
 
-    <!-- Visual Compliance Pipeline Stepper -->
-    <section class="glass-card rounded-2xl p-5 specular-border">
+    <!-- Section 2: Visual 4-Stage Compliance Pipeline Stepper -->
+    <section class="spotlight-card p-5 specular-border scroll-reveal">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2">
           <i data-lucide="git-commit" class="w-4 h-4 text-emerald-400"></i>
@@ -323,16 +484,18 @@
           </h3>
         </div>
         <div class="flex items-center gap-3">
-          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hidden sm:inline-block">DETERMINISTIC GATING</span>
-          <div id="latency-indicator" class="font-mono text-xs text-brand-muted bg-slate-800/80 px-2.5 py-1 rounded-md border border-slate-700/60 specular-inset">
-            Latency: <span id="latency-val" class="text-emerald-400 font-semibold">Ready</span>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hidden sm:inline-block">
+            REAL-TIME DETERMINISTIC PROOF
+          </span>
+          <div id="latency-indicator" class="font-mono text-xs text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-md border border-slate-700/60 specular-inset">
+            Latency: <span id="latency-val" class="text-emerald-400 font-bold">Ready</span>
           </div>
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-left">
         <!-- Stage 1 -->
-        <div id="step-intake" class="p-3.5 rounded-xl border border-slate-800 bg-[#090D16] transition relative overflow-hidden">
+        <div id="step-intake" class="p-3.5 rounded-xl border border-slate-800 bg-[#070A11] transition relative overflow-hidden">
           <div class="flex items-center justify-between mb-1.5">
             <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">STAGE 01</span>
             <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-intake-badge">1</span>
@@ -342,7 +505,7 @@
         </div>
 
         <!-- Stage 2 -->
-        <div id="step-rules" class="p-3.5 rounded-xl border border-slate-800 bg-[#090D16] transition relative overflow-hidden">
+        <div id="step-rules" class="p-3.5 rounded-xl border border-slate-800 bg-[#070A11] transition relative overflow-hidden">
           <div class="flex items-center justify-between mb-1.5">
             <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">STAGE 02</span>
             <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-rules-badge">2</span>
@@ -352,7 +515,7 @@
         </div>
 
         <!-- Stage 3 -->
-        <div id="step-retrieval" class="p-3.5 rounded-xl border border-slate-800 bg-[#090D16] transition relative overflow-hidden">
+        <div id="step-retrieval" class="p-3.5 rounded-xl border border-slate-800 bg-[#070A11] transition relative overflow-hidden">
           <div class="flex items-center justify-between mb-1.5">
             <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">STAGE 03</span>
             <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-retrieval-badge">3</span>
@@ -362,7 +525,7 @@
         </div>
 
         <!-- Stage 4 -->
-        <div id="step-guardrails" class="p-3.5 rounded-xl border border-slate-800 bg-[#090D16] transition relative overflow-hidden">
+        <div id="step-guardrails" class="p-3.5 rounded-xl border border-slate-800 bg-[#070A11] transition relative overflow-hidden">
           <div class="flex items-center justify-between mb-1.5">
             <span class="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider">STAGE 04</span>
             <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-guardrails-badge">4</span>
@@ -373,20 +536,20 @@
       </div>
     </section>
 
-    <!-- Verdict Section -->
-    <section id="verdict-section" class="space-y-6">
+    <!-- Section 3: Verdict Determination & Procedural Directives -->
+    <section id="verdict-section" class="space-y-6 scroll-reveal">
       
       <!-- Primary Verdict Card -->
-      <div id="verdict-card" class="glass-card rounded-2xl p-6 sm:p-8 transition-all glow-decided">
+      <div id="verdict-card" class="spotlight-card p-6 sm:p-8 transition-all border-emerald-500/30">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#1E293B]">
           <div class="flex items-center gap-4">
-            <div id="status-icon-wrapper" class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <div id="status-icon-wrapper" class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
               <i data-lucide="check-circle-2" class="w-8 h-8"></i>
             </div>
             <div>
               <div class="flex items-center gap-2">
                 <span class="text-xs font-mono tracking-widest uppercase text-slate-400">Statutory Determination:</span>
-                <span id="verdict-status-badge" class="font-extrabold text-sm px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <span id="verdict-status-badge" class="font-extrabold text-sm px-3 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                   DECIDED
                 </span>
               </div>
@@ -397,14 +560,14 @@
           </div>
 
           <div class="text-right flex md:flex-col items-center md:items-end justify-between gap-1">
-            <span class="text-xs text-brand-muted">Authoritative Rule ID:</span>
+            <span class="text-xs text-slate-400">Authoritative Rule Match:</span>
             <span id="verdict-rule-id" class="font-mono text-sm font-semibold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">
               RULE_DIRECT_PURCHASE
             </span>
           </div>
         </div>
 
-        <!-- Escalation Banner (Hidden by default) -->
+        <!-- Escalation Banner -->
         <div id="escalation-banner" class="hidden mt-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30">
           <div class="flex items-start gap-3">
             <i data-lucide="alert-octagon" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5"></i>
@@ -417,7 +580,7 @@
           </div>
         </div>
 
-        <!-- Needs Info Banner (Hidden by default) -->
+        <!-- Needs Info Banner -->
         <div id="needs-info-banner" class="hidden mt-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
           <div class="flex items-start gap-3">
             <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400 shrink-0 mt-0.5"></i>
@@ -430,27 +593,27 @@
           </div>
         </div>
 
-        <!-- Key Metrics Bar -->
+        <!-- Key Financial Metrics Bar -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-          <div class="p-4 rounded-xl bg-[#090D16] border border-[#1E293B]">
+          <div class="p-4 rounded-xl bg-[#070A11] border border-[#1E293B] specular-inset">
             <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Sanctioning Approver</span>
             <span id="metric-approver" class="text-sm font-bold text-white block">Head of Department (HoD)</span>
             <span class="text-[10px] text-slate-500">Statutory Competent Authority</span>
           </div>
 
-          <div class="p-4 rounded-xl bg-[#090D16] border border-[#1E293B]">
+          <div class="p-4 rounded-xl bg-[#070A11] border border-[#1E293B] specular-inset">
             <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Prescribed Method</span>
             <span id="metric-method" class="text-sm font-bold text-white block">Direct Purchase</span>
             <span class="text-[10px] text-slate-500">Manual 2024 Para 4.12</span>
           </div>
 
-          <div class="p-4 rounded-xl bg-[#090D16] border border-[#1E293B]">
+          <div class="p-4 rounded-xl bg-[#070A11] border border-[#1E293B] specular-inset">
             <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Min. Quotations</span>
             <span id="metric-quotes" class="text-sm font-bold text-white block">0 Quotations</span>
             <span class="text-[10px] text-slate-500">No quotation survey needed</span>
           </div>
 
-          <div class="p-4 rounded-xl bg-[#090D16] border border-[#1E293B]">
+          <div class="p-4 rounded-xl bg-[#070A11] border border-[#1E293B] specular-inset">
             <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Committee Requirement</span>
             <span id="metric-committee" class="text-sm font-bold text-white block">Not Required</span>
             <span class="text-[10px] text-slate-500">Individual HoD sanction</span>
@@ -470,7 +633,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         <!-- Procedural Action Stepper -->
-        <div class="glass-card rounded-2xl p-6 sm:p-7">
+        <div class="spotlight-card p-6 sm:p-7">
           <div class="flex items-center justify-between pb-4 border-b border-[#1E293B] mb-5">
             <h3 class="text-base font-bold text-white flex items-center gap-2">
               <i data-lucide="list-ordered" class="w-4 h-4 text-emerald-400"></i>
@@ -485,7 +648,7 @@
         </div>
 
         <!-- Interactive Mandatory Document Checklist -->
-        <div class="glass-card rounded-2xl p-6 sm:p-7">
+        <div class="spotlight-card p-6 sm:p-7">
           <div class="flex items-center justify-between pb-4 border-b border-[#1E293B] mb-5">
             <h3 class="text-base font-bold text-white flex items-center gap-2">
               <i data-lucide="check-square" class="w-4 h-4 text-emerald-400"></i>
@@ -503,18 +666,18 @@
 
     </section>
 
-    <!-- Telemetry & Benchmark Dashboard (Scroll Section) -->
-    <section id="telemetry-section" class="glass-card rounded-2xl p-6 sm:p-8">
+    <!-- Section 4: Telemetry Command Center & Benchmark Matrix -->
+    <section id="telemetry-section" class="spotlight-card p-6 sm:p-8 scroll-reveal">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#1E293B] gap-4 mb-6">
         <div>
           <h2 class="text-lg font-bold text-white flex items-center gap-2">
-            <i data-lucide="cpu" class="w-5 h-5 text-indigo-400"></i>
+            <i data-lucide="cpu" class="w-5 h-5 text-cyan-400"></i>
             Retrieval Telemetry & Automated Verification Benchmarks
           </h2>
-          <p class="text-xs text-brand-muted mt-0.5">Real-time benchmark evaluation over 10 statutory test scenarios and retrieval methods.</p>
+          <p class="text-xs text-slate-400 mt-0.5">Real-time benchmark evaluation over 10 statutory test scenarios and multi-method retrieval.</p>
         </div>
 
-        <button id="run-benchmarks-btn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-700 transition flex items-center gap-2">
+        <button id="run-benchmarks-btn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-700 transition flex items-center gap-2 specular-inset active:scale-95">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-emerald-400"></i>
           <span>Re-run 10 Automated Cases</span>
         </button>
@@ -523,49 +686,51 @@
       <!-- Telemetry Tables Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        <!-- Retrieval Evaluation Table -->
+        <!-- Retrieval Accuracy Table -->
         <div>
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-2">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-2 font-mono">
             <i data-lucide="bar-chart-2" class="w-4 h-4 text-emerald-400"></i>
             Multi-Method Retrieval Accuracy
           </h3>
-          <div class="overflow-x-auto rounded-xl border border-slate-800">
+          <div class="overflow-x-auto rounded-xl border border-[#1E293B] bg-[#070A11]">
             <table class="w-full text-left text-xs">
-              <thead class="bg-slate-900/80 text-slate-400 uppercase font-mono text-[11px] border-b border-slate-800">
+              <thead class="bg-slate-900/80 text-slate-400 font-mono uppercase text-[11px] border-b border-[#1E293B]">
                 <tr>
                   <th class="py-2.5 px-4">Retriever Method</th>
                   <th class="py-2.5 px-3 text-center">Recall@1</th>
                   <th class="py-2.5 px-3 text-center">Recall@3</th>
                   <th class="py-2.5 px-3 text-center">Recall@5</th>
-                  <th class="py-2.5 px-4 text-right font-mono">MRR</th>
+                  <th class="py-2.5 px-4 text-right">MRR</th>
                 </tr>
               </thead>
-              <tbody id="benchmarks-table-body" class="divide-y divide-slate-800/60 font-mono text-slate-300">
-                <tr><td colspan="5" class="py-4 text-center text-slate-500">Loading benchmark telemetry...</td></tr>
+              <tbody id="benchmarks-table-body" class="divide-y divide-[#1E293B] font-mono">
+                <!-- Dynamically loaded benchmarks -->
               </tbody>
             </table>
           </div>
-          <p class="text-[11px] text-slate-500 mt-2">Evaluated against authoritative gold retrieval queries with strict supersession filtering.</p>
+          <p class="text-[11px] text-slate-500 mt-2 font-mono">Evaluated against authoritative gold retrieval queries with strict supersession filtering.</p>
         </div>
 
-        <!-- 10 Acceptance Test Scenarios Matrix -->
+        <!-- 10 Acceptance Test Matrix -->
         <div>
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-2">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-2 font-mono">
             <i data-lucide="check-circle" class="w-4 h-4 text-teal-400"></i>
             10/10 Acceptance Test Matrix
           </h3>
-          <div class="overflow-x-auto rounded-xl border border-slate-800 max-h-72 overflow-y-auto">
+          <div class="overflow-x-auto rounded-xl border border-[#1E293B] bg-[#070A11] max-h-64 overflow-y-auto">
             <table class="w-full text-left text-xs">
-              <thead class="sticky top-0 bg-slate-900 text-slate-400 uppercase font-mono text-[11px] border-b border-slate-800">
+              <thead class="bg-slate-900/80 text-slate-400 font-mono uppercase text-[11px] border-b border-[#1E293B] sticky top-0 z-10">
                 <tr>
-                  <th class="py-2.5 px-3">Case ID</th>
-                  <th class="py-2.5 px-3">Scenario</th>
-                  <th class="py-2.5 px-2 text-center">Expected</th>
-                  <th class="py-2.5 px-2 text-center">Result</th>
+                  <th class="py-2 px-3">Case ID</th>
+                  <th class="py-2 px-3">Scenario</th>
+                  <th class="py-2 px-2 text-center">Expected</th>
+                  <th class="py-2 px-2 text-center">Result</th>
                 </tr>
               </thead>
-              <tbody id="test-matrix-body" class="divide-y divide-slate-800/60 text-slate-300">
-                <tr><td colspan="4" class="py-4 text-center text-slate-500">Click 'Re-run 10 Automated Cases' to verify suite.</td></tr>
+              <tbody id="test-matrix-body" class="divide-y divide-[#1E293B]">
+                <tr>
+                  <td colspan="4" class="py-4 text-center text-slate-400 italic">Click 'Re-run 10 Automated Cases' to verify suite.</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -576,60 +741,167 @@
 
   </main>
 
-  <!-- Slide-Over Drawer: Clause Legal Inspector -->
-  <aside id="clause-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-[#0F172A] border-l border-[#1E293B] shadow-2xl p-6 flex flex-col drawer-closed transition-transform duration-300 ease-in-out">
-    <div class="flex items-center justify-between pb-4 border-b border-[#1E293B]">
+  <!-- Slide-Over Side Drawer: Statutory Clause & Diff Inspector -->
+  <div id="clause-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-lg bg-[#0F172A] border-l border-[#1E293B] shadow-2xl transition-transform duration-300 ease-in-out drawer-closed flex flex-col">
+    <div class="p-5 border-b border-[#1E293B] flex items-center justify-between bg-[#070A11]/60">
       <div class="flex items-center gap-2">
-        <i data-lucide="file-text" class="w-5 h-5 text-emerald-400"></i>
-        <h3 class="text-base font-bold text-white">Statutory Clause Inspector</h3>
+        <i data-lucide="book-open" class="w-5 h-5 text-emerald-400"></i>
+        <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Statutory Clause & Diff Inspector</h3>
       </div>
-      <button id="close-drawer-btn" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+      <button id="close-drawer-btn" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
     </div>
 
-    <div id="clause-drawer-content" class="flex-1 overflow-y-auto py-5 space-y-4">
-      <div class="text-center py-10 text-slate-500">Select any citation chip to inspect verbatim statutory text.</div>
+    <!-- Drawer Navigation Tabs -->
+    <div class="flex border-b border-[#1E293B] bg-[#070A11] px-4">
+      <button id="drawer-tab-verbatim" class="py-2.5 px-3 text-xs font-semibold text-emerald-400 border-b-2 border-emerald-400 transition" onclick="switchDrawerTab('verbatim')">
+        Verbatim Text
+      </button>
+      <button id="drawer-tab-diff" class="py-2.5 px-3 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition" onclick="switchDrawerTab('diff')">
+        Gazette Evolution (2017 vs 2024)
+      </button>
     </div>
-  </aside>
 
-  <!-- Centered Modal: Form Template Viewer -->
-  <div id="form-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-[#0F172A] border border-[#1E293B] rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-[#1E293B]">
-        <div class="flex items-center gap-2.5">
-          <i data-lucide="file-check" class="w-5 h-5 text-teal-400"></i>
+    <div class="flex-1 overflow-y-auto p-6 space-y-5" id="clause-drawer-content">
+      <!-- Dynamically filled with clause data -->
+    </div>
+  </div>
+
+  <!-- Compliance Form Preview & Print Modal -->
+  <div id="form-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="spotlight-card w-full max-w-2xl max-h-[85vh] flex flex-col border-[#1E293B] shadow-2xl" id="print-modal-container">
+      <div class="p-4 border-b border-[#1E293B] flex items-center justify-between bg-[#070A11]/80">
+        <div class="flex items-center gap-2">
+          <i data-lucide="file-check-2" class="w-5 h-5 text-teal-400"></i>
           <div>
-            <h4 id="form-modal-title" class="font-bold text-base text-white">Purchase Indent Form</h4>
-            <span id="form-modal-filename" class="text-xs text-brand-muted font-mono">FORM-INDENT</span>
+            <h3 class="text-sm font-bold text-white font-mono" id="form-modal-title">FORM TEMPLATE PREVIEW</h3>
+            <span class="text-[10px] text-slate-400 font-mono" id="form-modal-filename">template.md</span>
           </div>
         </div>
-        <button id="close-modal-btn" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="window.print()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono text-slate-200 border border-slate-700 transition flex items-center gap-1">
+            <i data-lucide="printer" class="w-3.5 h-3.5 text-emerald-400"></i> Print / PDF
+          </button>
+          <button id="close-modal-btn" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
       </div>
 
-      <div class="flex-1 overflow-y-auto p-6 text-sm text-slate-300 font-mono whitespace-pre-wrap bg-[#090D16]/50" id="form-modal-content">
+      <div class="flex-1 overflow-y-auto p-6 text-sm text-slate-200 font-mono whitespace-pre-wrap bg-[#070A11]/60 leading-relaxed border-t border-b border-[#1E293B]" id="form-modal-content">
         Loading template...
+      </div>
+
+      <div class="p-3 bg-[#070A11] flex items-center justify-between text-[11px] text-slate-500 font-mono">
+        <span>GFR 2017 & Manual for Procurement of Goods 2024</span>
+        <span class="text-emerald-400 font-semibold">Statutory Draft Complete</span>
       </div>
     </div>
   </div>
 
   <!-- Footer -->
-  <footer class="border-t border-[#1E293B] py-6 text-center text-xs text-slate-500">
-    <p>Institutional Procurement Compliance Engine &bull; GFR 2017 & Manual for Procurement of Goods 2024</p>
-    <p class="mt-1 text-[11px] text-slate-600">Pure deterministic threshold engine. Zero ungrounded hallucinations.</p>
+  <footer class="border-t border-[#1E293B] py-8 text-center text-xs text-slate-500 bg-[#070A11]/50">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span class="font-mono text-slate-400">PROCUREGUARD Engine v4.8 &bull; GFR 2017 / MGP 2024</span>
+      </div>
+      <p class="text-slate-500 font-mono">Pure deterministic threshold validation. Zero fabricated citations.</p>
+    </div>
   </footer>
 
-  <!-- Application Logic -->
+  <!-- Application Logic & Animations -->
   <script>
     // State management
     let currentPresets = [];
     let currentResponse = null;
     let currentCaseInput = null;
     let currentEvaluationData = null;
+    let soundEnabled = false;
+    let activeClauseData = null;
 
-    // Utility: Format currency in Indian Rupees
+    // 1. Initialize Lenis Smooth Scroll
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    // Update scroll progress bar
+    lenis.on('scroll', (e) => {
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollHeight > 0 ? (e.scroll / scrollHeight) * 100 : 0;
+      document.getElementById('scroll-progress').style.width = `${progress}%`;
+    });
+
+    // 2. Initialize GSAP ScrollTrigger Animations
+    gsap.registerPlugin(ScrollTrigger);
+
+    function initScrollAnimations() {
+      gsap.utils.toArray('.scroll-reveal').forEach((elem) => {
+        gsap.fromTo(elem, 
+          { y: 30, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: elem,
+              start: 'top 88%',
+              toggleActions: 'play none none none'
+            }
+          }
+        );
+      });
+    }
+
+    // 3. Card Spotlight Cursor Tracker
+    document.querySelectorAll('.spotlight-card').forEach((card) => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      });
+    });
+
+    // 4. Subtle Tactile Audio Synthesizer
+    let audioCtx = null;
+    function playTactileClick() {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.04);
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.04);
+      } catch (e) {}
+    }
+
+    document.getElementById('sound-toggle-btn').onclick = () => {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('sound-toggle-btn');
+      icon.innerHTML = soundEnabled ? '<i data-lucide="volume-2" class="w-4 h-4 text-emerald-400"></i>' : '<i data-lucide="volume-x" class="w-4 h-4"></i>';
+      refreshIcons();
+    };
+
+    // 5. Utility: Indian Rupee Formatter & Number-To-Words
     function formatINR(val) {
       if (val === null || val === undefined || isNaN(val)) return 'Unspecified';
       return new Intl.NumberFormat('en-IN', {
@@ -639,37 +911,117 @@
       }).format(val);
     }
 
-    // Initialize Lucide Icons
+    function inrToWords(num) {
+      if (!num || isNaN(num) || num <= 0) return 'Zero Rupees';
+      const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+      const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+      function inWords(n) {
+        if (n < 20) return a[n];
+        const digit = n % 10;
+        return b[Math.floor(n / 10)] + (digit ? ' ' + a[digit] : '');
+      }
+
+      num = Math.floor(num);
+      let str = '';
+      const crore = Math.floor(num / 10000000);
+      num %= 10000000;
+      const lakh = Math.floor(num / 100000);
+      num %= 100000;
+      const thousand = Math.floor(num / 1000);
+      num %= 1000;
+      const hundred = Math.floor(num / 100);
+      num %= 100;
+
+      if (crore) str += inWords(crore) + ' Crore ';
+      if (lakh) str += inWords(lakh) + ' Lakh ';
+      if (thousand) str += inWords(thousand) + ' Thousand ';
+      if (hundred) str += inWords(hundred) + ' Hundred ';
+      if (num) str += (str ? 'and ' : '') + inWords(num) + ' ';
+
+      return 'Rupees ' + str.trim() + ' Only';
+    }
+
     function refreshIcons() {
       if (window.lucide) {
         lucide.createIcons();
       }
     }
 
-    // Dynamic value formatting listener
+    // 6. Interactive Threshold Slider & Dual Input Binding
     const valueInput = document.getElementById('input-value');
     const inrLabel = document.getElementById('inr-formatted-label');
+    const inrWords = document.getElementById('inr-words-label');
     const omitValueCheck = document.getElementById('check-omit-value');
+    const thresholdSlider = document.getElementById('threshold-slider');
+    const sliderBadge = document.getElementById('slider-threshold-rule-badge');
+
+    function sliderValueToINR(pct) {
+      if (pct <= 25) {
+        return Math.round((pct / 25) * 50000);
+      } else if (pct <= 50) {
+        return Math.round(50000 + ((pct - 25) / 25) * 450000);
+      } else if (pct <= 75) {
+        return Math.round(500000 + ((pct - 50) / 25) * 2000000);
+      } else {
+        return Math.round(2500000 + ((pct - 75) / 25) * 7500000);
+      }
+    }
+
+    function inrToSliderValue(val) {
+      if (val <= 50000) return (val / 50000) * 25;
+      if (val <= 500000) return 25 + ((val - 50000) / 450000) * 25;
+      if (val <= 2500000) return 50 + ((val - 500000) / 2000000) * 25;
+      return Math.min(100, 75 + ((val - 2500000) / 7500000) * 25);
+    }
 
     function updateValueDisplay() {
       if (omitValueCheck.checked) {
         inrLabel.textContent = 'None (NEEDS_INFO)';
-        inrLabel.className = 'font-mono text-xs text-amber-400 font-medium';
+        inrLabel.className = 'font-mono text-xs text-amber-400 font-bold';
+        inrWords.textContent = 'Value omitted for exception check';
         valueInput.disabled = true;
         valueInput.classList.add('opacity-40');
+        sliderBadge.textContent = 'Gating Exception: Value Missing';
+        sliderBadge.className = 'font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30';
       } else {
         valueInput.disabled = false;
         valueInput.classList.remove('opacity-40');
-        const num = parseFloat(valueInput.value);
+        const num = parseFloat(valueInput.value) || 0;
         inrLabel.textContent = formatINR(num);
-        inrLabel.className = 'font-mono text-xs text-emerald-400 font-medium';
+        inrLabel.className = 'font-mono text-xs text-emerald-400 font-bold';
+        inrWords.textContent = inrToWords(num);
+        thresholdSlider.value = inrToSliderValue(num);
+
+        // Update Slider Badge
+        if (num <= 50000) {
+          sliderBadge.textContent = 'Direct Purchase (≤ ₹50,000)';
+          sliderBadge.className = 'font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
+        } else if (num <= 500000) {
+          sliderBadge.textContent = 'Local Purchase Committee (₹50k – ₹5L)';
+          sliderBadge.className = 'font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/30';
+        } else if (num <= 2500000) {
+          sliderBadge.textContent = 'Limited Tender Enquiry (₹5L – ₹25L)';
+          sliderBadge.className = 'font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/30';
+        } else {
+          sliderBadge.textContent = 'Advertised Open Tender (> ₹25L)';
+          sliderBadge.className = 'font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/30';
+        }
       }
     }
 
     valueInput.addEventListener('input', updateValueDisplay);
     omitValueCheck.addEventListener('change', updateValueDisplay);
 
-    // Fetch and render presets
+    thresholdSlider.addEventListener('input', (e) => {
+      if (omitValueCheck.checked) omitValueCheck.checked = false;
+      const calculatedINR = sliderValueToINR(parseFloat(e.target.value));
+      valueInput.value = calculatedINR;
+      updateValueDisplay();
+      playTactileClick();
+    });
+
+    // 7. Load and Render Benchmark Presets
     async function loadPresets() {
       try {
         const resp = await fetch('/api/presets');
@@ -677,12 +1029,15 @@
         const container = document.getElementById('presets-container');
         container.innerHTML = '';
 
-        currentPresets.forEach((p, idx) => {
+        currentPresets.forEach((p) => {
           const btn = document.createElement('button');
           btn.type = 'button';
-          btn.className = 'text-xs px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/80 text-slate-300 hover:text-white transition flex items-center gap-1.5';
+          btn.className = 'text-xs px-3 py-1.5 rounded-lg bg-[#070A11] border border-[#1E293B] hover:border-emerald-500/50 hover:bg-slate-800 text-slate-300 hover:text-white transition flex items-center gap-1.5 specular-inset';
           btn.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${p.expected.status === 'DECIDED' ? 'bg-emerald-400' : p.expected.status === 'NEEDS_INFO' ? 'bg-amber-400' : 'bg-rose-400'}"></span> ${p.name}`;
-          btn.onclick = () => applyPreset(p);
+          btn.onclick = () => {
+            playTactileClick();
+            applyPreset(p);
+          };
           container.appendChild(btn);
         });
       } catch (err) {
@@ -690,7 +1045,6 @@
       }
     }
 
-    // Apply preset to form and trigger evaluate
     function applyPreset(preset) {
       const inp = preset.input;
       document.getElementById('input-category').value = inp.category || 'goods';
@@ -710,13 +1064,13 @@
       document.getElementById('check-emergency').checked = Boolean(inp.is_emergency);
       document.getElementById('check-sole-source').checked = Boolean(inp.is_sole_source);
 
-      // Auto evaluate on preset selection
       submitEvaluation();
     }
 
-    // Form submission handler
+    // 8. Form Submission & API Evaluation
     document.getElementById('evaluation-form').addEventListener('submit', (e) => {
       e.preventDefault();
+      playTactileClick();
       submitEvaluation();
     });
 
@@ -725,6 +1079,7 @@
       omitValueCheck.checked = false;
       valueInput.value = 50000;
       updateValueDisplay();
+      playTactileClick();
     });
 
     async function submitEvaluation() {
@@ -764,30 +1119,7 @@
       }
     }
 
-    function exportAuditReport() {
-      if (!currentEvaluationData) {
-        alert('Please evaluate a requisition case first before exporting audit report.');
-        return;
-      }
-      const report = {
-        title: "Procurement Statutory Compliance Audit Report",
-        timestamp: new Date().toISOString(),
-        standard: "GFR 2017 & Manual for Procurement of Goods 2024",
-        input: currentCaseInput,
-        response: currentEvaluationData,
-      };
-      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `audit_report_${currentEvaluationData.decision?.matched_rule_id || 'eval'}_${Date.now()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    // Render verdict and action items
+    // 9. Render Verdict, Pipeline Stepper & Procedural Steps
     function renderVerdict(data) {
       const dec = data.decision;
       const verdictCard = document.getElementById('verdict-card');
@@ -797,56 +1129,55 @@
       const statusIcon = document.getElementById('status-icon-wrapper');
       const summaryText = document.getElementById('verdict-summary');
       const latencyVal = document.getElementById('latency-val');
+      const heroLatency = document.getElementById('hero-latency-kpi');
 
       latencyVal.textContent = `${data.latency_ms} ms`;
+      if (heroLatency) heroLatency.textContent = `${data.latency_ms} ms`;
 
-      // Update Pipeline Stepper glowing states
+      // Update Pipeline Stepper states
       const isNeedsInfo = dec.status === 'NEEDS_INFO';
       const isEscalate = dec.status === 'ESCALATE';
       const isDecided = dec.status === 'DECIDED';
 
-      // Stage 1: Intake
       updateStepBadge('step-intake', isNeedsInfo ? 'error' : 'done');
-      // Stage 2: Rules
       updateStepBadge('step-rules', isNeedsInfo ? 'skipped' : (isEscalate ? 'warn' : 'done'));
-      // Stage 3: Retrieval
       updateStepBadge('step-retrieval', isDecided ? 'done' : 'skipped');
-      // Stage 4: Guardrails
       updateStepBadge('step-guardrails', isDecided ? 'done' : 'skipped');
 
-      // Update Verdict theme
-      verdictCard.className = 'glass-card rounded-2xl p-6 sm:p-8 transition-all ' +
-        (isDecided ? 'glow-decided border-emerald-500/30' : isNeedsInfo ? 'glow-needs-info border-amber-500/30' : 'glow-escalate border-rose-500/30');
+      // Update Verdict theme styling
+      verdictCard.className = 'spotlight-card p-6 sm:p-8 transition-all ' +
+        (isDecided ? 'border-emerald-500/40 shadow-[0_0_30px_rgba(16,185,129,0.15)]' : 
+         isNeedsInfo ? 'border-amber-500/40 shadow-[0_0_30px_rgba(245,158,11,0.15)]' : 
+         'border-rose-500/40 shadow-[0_0_30px_rgba(239,68,68,0.15)]');
 
       statusBadge.textContent = dec.status;
       ruleId.textContent = dec.matched_rule_id || 'NO_RULE_MATCH';
 
       if (isDecided) {
         statusBadge.className = 'font-extrabold text-sm px-3 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-        statusIcon.className = 'w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400';
+        statusIcon.className = 'w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0';
         statusIcon.innerHTML = `<i data-lucide="check-circle-2" class="w-8 h-8"></i>`;
         methodTitle.textContent = dec.method || 'Authorized Procurement';
       } else if (isNeedsInfo) {
         statusBadge.className = 'font-extrabold text-sm px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30';
-        statusIcon.className = 'w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400';
+        statusIcon.className = 'w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0';
         statusIcon.innerHTML = `<i data-lucide="alert-triangle" class="w-8 h-8"></i>`;
         methodTitle.textContent = 'Gating Requirement: Information Missing';
       } else {
         statusBadge.className = 'font-extrabold text-sm px-3 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30';
-        statusIcon.className = 'w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400';
+        statusIcon.className = 'w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0';
         statusIcon.innerHTML = `<i data-lucide="alert-octagon" class="w-8 h-8"></i>`;
-        methodTitle.textContent = 'Procurement Exception Escalation';
+        methodTitle.textContent = 'Statutory Escalation Required';
       }
 
-      // Metrics Bar
-      document.getElementById('metric-approver').textContent = dec.approver || 'Not Sanctioned';
-      document.getElementById('metric-method').textContent = dec.method || (isNeedsInfo ? 'Pending Input' : 'Escalated to Officer');
-      document.getElementById('metric-quotes').textContent = `${dec.min_quotations !== null ? dec.min_quotations : '-'} Quotation(s)`;
-      document.getElementById('metric-committee').textContent = dec.committee_required ? 'Mandatory (3 Members)' : 'Not Mandated';
+      // Populate metrics
+      document.getElementById('metric-approver').textContent = dec.approver || 'Not Determined';
+      document.getElementById('metric-method').textContent = dec.method || 'Escalation Required';
+      document.getElementById('metric-quotes').textContent = `${dec.min_quotations ?? 0} Quotations`;
+      document.getElementById('metric-committee').textContent = dec.committee_required ? 'Mandatory (3 Members)' : 'Not Required';
+      summaryText.textContent = data.summary || 'Statutory evaluation executed.';
 
-      summaryText.textContent = data.summary;
-
-      // Escalation and Needs Info Banners
+      // Banners
       const escBanner = document.getElementById('escalation-banner');
       const escText = document.getElementById('escalation-reasons-text');
       if (dec.status === 'ESCALATE' && dec.escalation_reasons?.length) {
@@ -874,10 +1205,10 @@
       } else {
         data.steps.forEach(s => {
           const stepDiv = document.createElement('div');
-          stepDiv.className = 'flex items-start gap-3 p-3 rounded-xl bg-[#090D16] border border-[#1E293B]';
+          stepDiv.className = 'flex items-start gap-3 p-3.5 rounded-xl bg-[#070A11] border border-[#1E293B] specular-inset';
           
           const pills = (s.clause_ids || []).map(cid => 
-            `<button onclick="inspectClause('${cid}')" class="font-mono text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition cursor-pointer">${cid}</button>`
+            `<button onclick="inspectClause('${cid}')" class="font-mono text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition cursor-pointer font-semibold">${cid}</button>`
           ).join(' ');
 
           stepDiv.innerHTML = `
@@ -885,7 +1216,7 @@
               ${s.n}
             </div>
             <div class="flex-1">
-              <p class="text-xs text-slate-200 leading-relaxed">${s.action}</p>
+              <p class="text-xs text-slate-200 leading-relaxed font-normal">${s.action}</p>
               <div class="flex flex-wrap gap-1.5 mt-2">${pills}</div>
             </div>
           `;
@@ -901,18 +1232,18 @@
       } else {
         data.checklist.forEach(c => {
           const checkDiv = document.createElement('div');
-          checkDiv.className = 'flex items-center justify-between p-3 rounded-xl bg-[#090D16] border border-[#1E293B]';
+          checkDiv.className = 'flex items-center justify-between p-3.5 rounded-xl bg-[#070A11] border border-[#1E293B] specular-inset';
           
           const formBtn = c.form_id ? 
-            `<button onclick="openFormModal('${c.form_id}')" class="text-[11px] font-mono font-medium text-teal-400 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 px-2 py-1 rounded flex items-center gap-1 transition">
+            `<button onclick="openFormModal('${c.form_id}')" class="text-[11px] font-mono font-medium text-teal-400 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 px-2.5 py-1 rounded-lg flex items-center gap-1 transition">
               <i data-lucide="file-text" class="w-3 h-3"></i> View ${c.form_id}
             </button>` : '';
 
           checkDiv.innerHTML = `
             <div class="flex items-center gap-2.5">
-              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
               <span class="text-xs font-medium text-white">${c.item}</span>
-              ${c.mandatory ? '<span class="text-[10px] text-emerald-400/80 font-mono">(Mandatory)</span>' : '<span class="text-[10px] text-slate-400 font-mono">(Optional)</span>'}
+              ${c.mandatory ? '<span class="text-[10px] text-emerald-400 font-mono font-semibold">(Mandatory)</span>' : '<span class="text-[10px] text-slate-400 font-mono">(Optional)</span>'}
             </div>
             <div>${formBtn}</div>
           `;
@@ -928,45 +1259,79 @@
       const badge = document.getElementById(`${stepId}-badge`);
       
       if (state === 'done') {
-        el.className = 'p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 transition';
-        badge.className = 'w-6 h-6 rounded-full bg-emerald-500 text-slate-950 text-xs font-bold flex items-center justify-center';
+        el.className = 'p-3.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 transition relative overflow-hidden';
+        badge.className = 'w-5 h-5 rounded-full bg-emerald-500 text-slate-950 text-xs font-bold flex items-center justify-center';
         badge.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i>`;
       } else if (state === 'warn') {
-        el.className = 'p-3 rounded-xl border border-rose-500/30 bg-rose-500/10 transition';
-        badge.className = 'w-6 h-6 rounded-full bg-rose-500 text-white text-xs font-bold flex items-center justify-center';
+        el.className = 'p-3.5 rounded-xl border border-rose-500/40 bg-rose-500/10 transition relative overflow-hidden';
+        badge.className = 'w-5 h-5 rounded-full bg-rose-500 text-white text-xs font-bold flex items-center justify-center';
         badge.innerHTML = `<i data-lucide="x" class="w-3.5 h-3.5"></i>`;
       } else if (state === 'error') {
-        el.className = 'p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 transition';
-        badge.className = 'w-6 h-6 rounded-full bg-amber-500 text-slate-950 text-xs font-bold flex items-center justify-center';
+        el.className = 'p-3.5 rounded-xl border border-amber-500/40 bg-amber-500/10 transition relative overflow-hidden';
+        badge.className = 'w-5 h-5 rounded-full bg-amber-500 text-slate-950 text-xs font-bold flex items-center justify-center';
         badge.innerHTML = `!`;
       } else {
-        el.className = 'p-3 rounded-xl border border-slate-800 bg-slate-900/60 opacity-50 transition';
-        badge.className = 'w-6 h-6 rounded-full bg-slate-800 text-slate-500 text-xs font-bold flex items-center justify-center border border-slate-700';
+        el.className = 'p-3.5 rounded-xl border border-slate-800 bg-[#070A11] opacity-50 transition relative overflow-hidden';
+        badge.className = 'w-5 h-5 rounded-full bg-slate-800 text-slate-500 text-xs font-bold flex items-center justify-center border border-slate-700';
       }
     }
 
-    // Clause Inspector Drawer
+    // 10. Slide-Over Clause Drawer with Gazette Evolution Diff
     const drawer = document.getElementById('clause-drawer');
     const drawerContent = document.getElementById('clause-drawer-content');
+    let activeDrawerTab = 'verbatim';
+
     document.getElementById('close-drawer-btn').onclick = () => {
       drawer.classList.remove('drawer-open');
       drawer.classList.add('drawer-closed');
     };
 
+    function switchDrawerTab(tab) {
+      activeDrawerTab = tab;
+      drawer.classList.remove('drawer-closed');
+      drawer.classList.add('drawer-open');
+      const btnVerbatim = document.getElementById('drawer-tab-verbatim');
+      const btnDiff = document.getElementById('drawer-tab-diff');
+      
+      if (tab === 'verbatim') {
+        btnVerbatim.className = 'py-2.5 px-3 text-xs font-semibold text-emerald-400 border-b-2 border-emerald-400 transition';
+        btnDiff.className = 'py-2.5 px-3 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition';
+      } else {
+        btnDiff.className = 'py-2.5 px-3 text-xs font-semibold text-cyan-400 border-b-2 border-cyan-400 transition';
+        btnVerbatim.className = 'py-2.5 px-3 text-xs font-semibold text-slate-400 hover:text-white border-b-2 border-transparent transition';
+      }
+      renderDrawerBody();
+    }
+
     async function inspectClause(clauseId) {
       drawer.classList.remove('drawer-closed');
       drawer.classList.add('drawer-open');
-      drawerContent.innerHTML = `<div class="py-12 text-center text-slate-400"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-400"></i> Loading clause details...</div>`;
+      drawerContent.innerHTML = `<div class="py-16 text-center text-slate-400"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-400"></i> Loading statutory legal text...</div>`;
       refreshIcons();
 
       try {
         const resp = await fetch(`/api/clause/${encodeURIComponent(clauseId)}`);
         if (!resp.ok) throw new Error('Clause not found');
-        const c = await resp.json();
+        activeClauseData = await resp.json();
+        renderDrawerBody();
+      } catch (err) {
+        drawerContent.innerHTML = `
+          <div class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300">
+            <strong>Error:</strong> Statutory clause '${clauseId}' could not be located in index.
+          </div>
+        `;
+      }
+      refreshIcons();
+    }
 
+    function renderDrawerBody() {
+      if (!activeClauseData) return;
+      const c = activeClauseData;
+
+      if (activeDrawerTab === 'verbatim') {
         drawerContent.innerHTML = `
           <div class="space-y-4">
-            <div class="p-3.5 rounded-xl bg-[#090D16] border border-[#1E293B]">
+            <div class="p-4 rounded-xl bg-[#070A11] border border-[#1E293B] specular-inset">
               <div class="flex items-center justify-between mb-2">
                 <span class="font-mono text-sm font-bold text-emerald-400">${c.clause_id}</span>
                 <span class="text-[10px] font-mono px-2 py-0.5 rounded-full ${c.is_current ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'}">
@@ -978,30 +1343,48 @@
             </div>
 
             <div>
-              <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block mb-1">Verbatim Regulatory Text</span>
-              <div class="p-4 rounded-xl bg-[#090D16] border border-[#1E293B] text-xs text-slate-200 leading-relaxed font-mono">
+              <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block mb-1.5 font-mono">Verbatim Statutory Text</span>
+              <div class="p-4 rounded-xl bg-[#070A11] border border-[#1E293B] text-xs text-slate-200 leading-relaxed font-mono whitespace-pre-wrap specular-inset">
                 ${c.text}
               </div>
             </div>
 
             ${c.superseded_by ? `
-              <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300">
-                <strong>Superseded by:</strong> <code class="font-mono">${c.superseded_by}</code>
+              <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300">
+                <strong>Superseded by:</strong> <code class="font-mono">${c.superseded_by}</code> (Manual for Procurement of Goods 2024 update)
               </div>
             ` : ''}
           </div>
         `;
-      } catch (err) {
+      } else {
+        // Gazette Evolution Diff view
         drawerContent.innerHTML = `
-          <div class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300">
-            <strong>Error:</strong> Clause '${clauseId}' could not be located in statutory index.
+          <div class="space-y-4">
+            <div class="p-4 rounded-xl bg-[#070A11] border border-[#1E293B]">
+              <span class="text-[10px] font-mono uppercase tracking-wider text-cyan-400 block mb-1">Gazette Evolution & Threshold Revision</span>
+              <h4 class="text-xs font-bold text-white">GFR 2017 Rule 154 vs. Goods Manual 2024 Para 4.12</h4>
+            </div>
+
+            <div class="p-4 rounded-xl bg-[#070A11] border border-rose-500/30 font-mono text-xs text-slate-300 space-y-1">
+              <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider block">Superseded Baseline (GFR 2017 Rule 154)</span>
+              <p class="line-through text-rose-300/80">"Purchase of goods up to the value of Rs. 25,000 (Rupees twenty-five thousand) only on each occasion may be made without inviting quotations..."</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-[#070A11] border border-emerald-500/30 font-mono text-xs text-slate-200 space-y-1">
+              <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">Current Law (Goods Manual 2024 Para 4.12)</span>
+              <p class="text-emerald-300 font-semibold">"Purchase of goods up to the value of Rs. 50,000 (Rupees fifty thousand) only on each occasion may be made without inviting quotations..."</p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/30 text-xs text-blue-200">
+              <span class="font-bold">Statutory Note:</span> The DoE Office Memorandum (OM) updated the statutory threshold ceiling from ₹25,000 to ₹50,000, delegating sanctioning competency directly to the Head of Department (HoD).
+            </div>
           </div>
         `;
       }
       refreshIcons();
     }
 
-    // Form Modal
+    // 11. Form Preview & Printable Document Simulator
     const modal = document.getElementById('form-modal');
     const modalTitle = document.getElementById('form-modal-title');
     const modalFilename = document.getElementById('form-modal-filename');
@@ -1012,7 +1395,7 @@
 
     async function openFormModal(formId) {
       modal.classList.remove('hidden');
-      modalTitle.textContent = `Procurement Form Template`;
+      modalTitle.textContent = `PROCUREMENT FORM TEMPLATE`;
       modalFilename.textContent = formId;
       modalContent.textContent = 'Loading template...';
 
@@ -1020,14 +1403,14 @@
         const resp = await fetch(`/api/form/${encodeURIComponent(formId)}`);
         if (!resp.ok) throw new Error('Form not found');
         const f = await resp.json();
-        modalTitle.textContent = f.file_name.replace('.md', '').toUpperCase();
+        modalTitle.textContent = f.file_name.replace('.md', '').toUpperCase().replace(/_/g, ' ');
         modalContent.textContent = f.content;
       } catch (err) {
         modalContent.textContent = `Form template '${formId}' could not be retrieved.`;
       }
     }
 
-    // Telemetry & Benchmark Tables
+    // 12. Telemetry & Acceptance Test Matrix Runner
     async function loadTelemetry() {
       try {
         const resp = await fetch('/api/benchmarks');
@@ -1066,14 +1449,12 @@
         tbody.innerHTML = '';
 
         for (const c of currentPresets) {
-          const t0 = performance.now();
           const resp = await fetch('/api/evaluate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(c.input)
           });
           const res = await resp.json();
-          const t1 = performance.now();
 
           const isPass = res.decision.status === c.expected.status &&
             (!c.expected.matched_rule_id || res.decision.matched_rule_id === c.expected.matched_rule_id);
@@ -1101,15 +1482,42 @@
       }
     }
 
-    document.getElementById('run-benchmarks-btn').onclick = runTestMatrix;
+    document.getElementById('run-benchmarks-btn').onclick = () => {
+      playTactileClick();
+      runTestMatrix();
+    };
 
-    // Boot
+    // 13. Audit Report JSON Export
+    function exportAuditReport() {
+      if (!currentEvaluationData) {
+        alert('Please evaluate a requisition case first before exporting audit report.');
+        return;
+      }
+      const report = {
+        title: "Procurement Statutory Compliance Audit Report",
+        timestamp: new Date().toISOString(),
+        standard: "GFR 2017 & Manual for Procurement of Goods 2024",
+        input: currentCaseInput,
+        response: currentEvaluationData,
+      };
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `audit_report_${currentEvaluationData.decision?.matched_rule_id || 'eval'}_${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Initialize Page
     window.addEventListener('DOMContentLoaded', async () => {
       refreshIcons();
       updateValueDisplay();
+      initScrollAnimations();
       await loadPresets();
       await loadTelemetry();
-      // Auto run default evaluation
       submitEvaluation();
     });
   </script>
