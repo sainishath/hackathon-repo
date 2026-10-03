@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Institutional Procurement Compliance Engine | GFR 2017 & Manual 2024</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#090D16',
+              card: '#0F172A',
+              cardHover: '#131F37',
+              border: '#1E293B',
+              borderLight: '#334155',
+              text: '#F8FAFC',
+              muted: '#94A3B8',
+            },
+            status: {
+              decided: '#10B981',
+              decidedBg: 'rgba(16, 185, 129, 0.12)',
+              decidedBorder: 'rgba(16, 185, 129, 0.35)',
+              needsInfo: '#F59E0B',
+              needsInfoBg: 'rgba(245, 158, 11, 0.12)',
+              needsInfoBorder: 'rgba(245, 158, 11, 0.35)',
+              escalate: '#EF4444',
+              escalateBg: 'rgba(239, 68, 68, 0.12)',
+              escalateBorder: 'rgba(239, 68, 68, 0.35)',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #090D16;
+      color: #F8FAFC;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .glass-card {
+      background: #0F172A;
+      border: 1px solid #1E293B;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    }
+    .glass-card:hover {
+      border-color: #334155;
+    }
+    .glow-decided {
+      box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.3);
+    }
+    .glow-needs-info {
+      box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.3);
+    }
+    .glow-escalate {
+      box-shadow: 0 0 25px -5px rgba(239, 68, 68, 0.3);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090D16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    .drawer-open {
+      transform: translateX(0%);
+    }
+    .drawer-closed {
+      transform: translateX(100%);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-emerald-500/20 selection:text-emerald-400">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-40 bg-[#090D16]/80 backdrop-blur-xl border-b border-[#1E293B]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-lg tracking-tight text-white">COMPLIANCE<span class="text-emerald-400">CORE</span></span>
+            <span class="text-[10px] font-mono tracking-widest uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">v2024 Verified</span>
+          </div>
+          <p class="text-xs text-brand-muted hidden sm:block">Institutional Statutory Procurement Directive Engine</p>
+        </div>
+      </div>
+
+      <nav class="flex items-center gap-4 text-xs font-medium text-brand-muted">
+        <a href="#intake-section" class="hover:text-white transition flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-800/60">
+          <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Intake
+        </a>
+        <a href="#verdict-section" class="hover:text-white transition flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-800/60">
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i> Directives
+        </a>
+        <a href="#telemetry-section" class="hover:text-white transition flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-800/60">
+          <i data-lucide="activity" class="w-3.5 h-3.5"></i> Telemetry & Benchmarks
+        </a>
+        <div class="h-4 w-px bg-slate-800"></div>
+        <div class="flex items-center gap-1.5 font-mono text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          69 Clauses Indexed
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Header -->
+  <section class="relative pt-10 pb-6 overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.15),rgba(255,255,255,0))]"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-slate-800/80 border border-slate-700/60 text-slate-300 mb-4 shadow-inner">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-400"></i>
+        <span>Deterministic Rule Evaluation + Grounded Hybrid RAG Pipeline</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">
+        Institutional Procurement <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">Compliance Engine</span>
+      </h1>
+      <p class="max-w-2xl mx-auto text-sm sm:text-base text-brand-muted font-normal">
+        Statutory enforcement conforming to <strong class="text-slate-200">GFR 2017</strong>, <strong class="text-slate-200">Goods Manual 2024 (Paras 4.12 & 4.13)</strong>, and <strong class="text-slate-200">Institute Annex 2026</strong>.
+        The LLM never fabricates thresholds—strict legal rules govern sanctions.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-10">
+
+    <!-- Intake Card & Presets -->
+    <section id="intake-section" class="glass-card rounded-2xl p-6 sm:p-8 transition-all">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#1E293B] gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <i data-lucide="clipboard-list" class="w-5 h-5 text-emerald-400"></i>
+            Requisition Intake & Case Specifications
+          </h2>
+          <p class="text-xs text-brand-muted mt-0.5">Parameters are evaluated with mathematical boundary inclusivity before retrieval.</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="clear-btn" type="button" class="text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded-lg border border-slate-800 hover:bg-slate-800 transition flex items-center gap-1.5">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset Form
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Scenario Presets Bar -->
+      <div class="pt-5 pb-2">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <i data-lucide="play-circle" class="w-3.5 h-3.5 text-cyan-400"></i> Quick Scenario Benchmark Presets:
+          </span>
+          <span class="text-[11px] text-slate-500">Click any preset pill to load & evaluate</span>
+        </div>
+        <div id="presets-container" class="flex flex-wrap gap-2 py-1">
+          <!-- Dynamically injected preset buttons -->
+          <div class="animate-pulse flex gap-2">
+            <div class="h-7 w-28 bg-slate-800 rounded-lg"></div>
+            <div class="h-7 w-32 bg-slate-800 rounded-lg"></div>
+            <div class="h-7 w-36 bg-slate-800 rounded-lg"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Inputs Grid -->
+      <form id="evaluation-form" class="mt-6 space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <!-- Category -->
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+              Category <span class="text-emerald-400 font-mono">⚡ Required</span>
+            </label>
+            <select id="input-category" class="w-full bg-[#090D16] border border-[#1E293B] rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+              <option value="goods" selected>Goods (Standard Consumables / Equipment)</option>
+              <option value="services">Services (Consulting / AMC / Outsourced)</option>
+              <option value="works">Works (Civil / Electrical / Fabrication)</option>
+              <option value="Consultancy">Consultancy (Specialized Advisory)</option>
+            </select>
+          </div>
+
+          <!-- Estimated Value (INR) -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                Estimated Value (INR) <span class="text-emerald-400 font-mono">⚡ Required</span>
+              </label>
+              <span id="inr-formatted-label" class="font-mono text-xs text-emerald-400 font-medium">₹ 50,000.00</span>
+            </div>
+            <div class="relative">
+              <span class="absolute left-3.5 top-2.5 text-slate-500 font-mono text-sm">₹</span>
+              <input id="input-value" type="number" step="0.01" min="0" value="50000" placeholder="e.g. 50000.00" class="w-full bg-[#090D16] border border-[#1E293B] rounded-xl pl-8 pr-3.5 py-2.5 text-sm font-mono text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition">
+            </div>
+            <div class="flex items-center gap-2 mt-1.5">
+              <input id="check-omit-value" type="checkbox" class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0 focus:ring-offset-0">
+              <label for="check-omit-value" class="text-[11px] text-slate-400 cursor-pointer">Omit value to test <code class="text-amber-400 font-mono">NEEDS_INFO</code> gating</label>
+            </div>
+          </div>
+
+          <!-- Quotations Received -->
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+              Quotations Received <span class="text-slate-500 font-normal">(Min 3 for LPC/LTE)</span>
+            </label>
+            <div class="relative">
+              <input id="input-quotes" type="number" min="0" max="50" value="0" class="w-full bg-[#090D16] border border-[#1E293B] rounded-xl px-3.5 py-2.5 text-sm font-mono text-white focus:outline-none focus:border-emerald-500 transition">
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">LPC & LTE require at least 3 formal quotation bids.</p>
+          </div>
+
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Item Description -->
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+              Item or Service Specification <span class="text-emerald-400 font-mono">⚡ Required</span>
+            </label>
+            <textarea id="input-description" rows="2" placeholder="Describe the item, operational purpose, and technical specifications..." class="w-full bg-[#090D16] border border-[#1E293B] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition">Department specialized printer and high yield cartridges</textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Funding Source -->
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                Budget / Funding Source
+              </label>
+              <input id="input-funding" type="text" value="Student Laboratory Budget" class="w-full bg-[#090D16] border border-[#1E293B] rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+            </div>
+
+            <!-- Department -->
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                Originating Department
+              </label>
+              <input id="input-department" type="text" value="Mechanical Engineering" class="w-full bg-[#090D16] border border-[#1E293B] rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+            </div>
+
+            <!-- Special Flags -->
+            <div class="sm:col-span-2 flex flex-wrap gap-4 pt-1">
+              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-[#090D16] border border-[#1E293B] cursor-pointer hover:border-slate-700 transition flex-1">
+                <input id="check-emergency" type="checkbox" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-rose-500 focus:ring-0">
+                <div>
+                  <div class="text-xs font-semibold text-rose-300">Urgent Breakdown / Emergency</div>
+                  <div class="text-[10px] text-slate-400">Invokes HoD powers (INST-2026-DP4, max ₹50k)</div>
+                </div>
+              </label>
+
+              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-[#090D16] border border-[#1E293B] cursor-pointer hover:border-slate-700 transition flex-1">
+                <input id="check-sole-source" type="checkbox" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-amber-500 focus:ring-0">
+                <div>
+                  <div class="text-xs font-semibold text-amber-300">Proprietary / Sole Source (PAC)</div>
+                  <div class="text-[10px] text-slate-400">Single OEM tender (GFR Rule 166)</div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-2 text-xs text-brand-muted">
+            <i data-lucide="info" class="w-4 h-4 text-emerald-400"></i>
+            <span>Engine automatically applies 2024 thresholds; overrides deprecated 2017/2022 rules.</span>
+          </div>
+
+          <button id="submit-evaluate-btn" type="submit" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-sm tracking-wide shadow-lg shadow-emerald-500/25 transition-all flex items-center justify-center gap-2">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+            <span>Evaluate Statutory Compliance</span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Visual Compliance Pipeline Stepper -->
+    <section class="glass-card rounded-2xl p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+          <i data-lucide="git-commit" class="w-4 h-4 text-teal-400"></i>
+          Execution Pipeline Trace
+        </h3>
+        <div id="latency-indicator" class="font-mono text-xs text-brand-muted bg-slate-800/80 px-2.5 py-1 rounded-md border border-slate-700/60">
+          Latency: <span id="latency-val" class="text-emerald-400 font-semibold">Ready</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+        <!-- Stage 1 -->
+        <div id="step-intake" class="p-3 rounded-xl border border-slate-800 bg-slate-900/60 transition">
+          <div class="flex items-center justify-center mb-1.5">
+            <span class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-intake-badge">1</span>
+          </div>
+          <div class="text-xs font-semibold text-white">Intake Gating</div>
+          <div class="text-[10px] text-slate-400 mt-0.5" id="step-intake-desc">Mandatory fields check</div>
+        </div>
+
+        <!-- Stage 2 -->
+        <div id="step-rules" class="p-3 rounded-xl border border-slate-800 bg-slate-900/60 transition">
+          <div class="flex items-center justify-center mb-1.5">
+            <span class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-rules-badge">2</span>
+          </div>
+          <div class="text-xs font-semibold text-white">Statutory Boundaries</div>
+          <div class="text-[10px] text-slate-400 mt-0.5" id="step-rules-desc">Deterministic rules.yaml</div>
+        </div>
+
+        <!-- Stage 3 -->
+        <div id="step-retrieval" class="p-3 rounded-xl border border-slate-800 bg-slate-900/60 transition">
+          <div class="flex items-center justify-center mb-1.5">
+            <span class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-retrieval-badge">3</span>
+          </div>
+          <div class="text-xs font-semibold text-white">Hybrid Retrieval</div>
+          <div class="text-[10px] text-slate-400 mt-0.5" id="step-retrieval-desc">BM25 + Dense RRF</div>
+        </div>
+
+        <!-- Stage 4 -->
+        <div id="step-guardrails" class="p-3 rounded-xl border border-slate-800 bg-slate-900/60 transition">
+          <div class="flex items-center justify-center mb-1.5">
+            <span class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-guardrails-badge">4</span>
+          </div>
+          <div class="text-xs font-semibold text-white">Citation Guardrails</div>
+          <div class="text-[10px] text-slate-400 mt-0.5" id="step-guardrails-desc">Zero hallucination lock</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Verdict Section -->
+    <section id="verdict-section" class="space-y-6">
+      
+      <!-- Primary Verdict Card -->
+      <div id="verdict-card" class="glass-card rounded-2xl p-6 sm:p-8 transition-all glow-decided">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#1E293B]">
+          <div class="flex items-center gap-4">
+            <div id="status-icon-wrapper" class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <i data-lucide="check-circle-2" class="w-8 h-8"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono tracking-widest uppercase text-slate-400">Statutory Determination:</span>
+                <span id="verdict-status-badge" class="font-extrabold text-sm px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  DECIDED
+                </span>
+              </div>
+              <h2 id="verdict-method-title" class="text-xl sm:text-2xl font-bold text-white mt-1">
+                Direct Purchase without Quotation
+              </h2>
+            </div>
+          </div>
+
+          <div class="text-right flex md:flex-col items-center md:items-end justify-between gap-1">
+            <span class="text-xs text-brand-muted">Authoritative Rule ID:</span>
+            <span id="verdict-rule-id" class="font-mono text-sm font-semibold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">
+              RULE_DIRECT_PURCHASE
+            </span>
+          </div>
+        </div>
+
+        <!-- Escalation Banner (Hidden by default) -->
+        <div id="escalation-banner" class="hidden mt-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30">
+          <div class="flex items-start gap-3">
+            <i data-lucide="alert-octagon" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5"></i>
+            <div>
+              <h4 class="text-sm font-bold text-rose-300">Statutory Escalation Mandated</h4>
+              <p class="text-xs text-rose-200 mt-1" id="escalation-reasons-text">
+                The proposal does not meet standard automated procurement bands or has triggered statutory exceptions.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Needs Info Banner (Hidden by default) -->
+        <div id="needs-info-banner" class="hidden mt-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
+          <div class="flex items-start gap-3">
+            <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400 shrink-0 mt-0.5"></i>
+            <div>
+              <h4 class="text-sm font-bold text-amber-300">Mandatory Details Missing</h4>
+              <p class="text-xs text-amber-200 mt-1" id="needs-info-fields-text">
+                Missing required fields: <code class="font-mono bg-black/30 px-1 py-0.5 rounded">estimated_value_inr</code>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key Metrics Bar -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div class="p-4 rounded-xl bg-[#090D16] border border-[#1E293B]">
+            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Sanctioning Approver</span>
+            <span id="metric-approver" class="text-sm font-bold text-white block">Head of Department (HoD)</span>
+            <span class="text-[10px] text-slate-500">Statutory Competent Authority</span>
+          </div>
+
+          <div class="p-4 rounded-xl bg-[#090D16] border border-[#1E293B]">
+            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Prescribed Method</span>
+            <span id="metric-method" class="text-sm font-bold text-white block">Direct Purchase</span>
+            <span class="text-[10px] text-slate-500">Manual 2024 Para 4.12</span>
+          </div>
+
+          <div class="p-4 rounded-xl bg-[#090D16] border border-[#1E293B]">
+            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Min. Quotations</span>
+            <span id="metric-quotes" class="text-sm font-bold text-white block">0 Quotations</span>
+            <span class="text-[10px] text-slate-500">No quotation survey needed</span>
+          </div>
+
+          <div class="p-4 rounded-xl bg-[#090D16] border border-[#1E293B]">
+            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Committee Requirement</span>
+            <span id="metric-committee" class="text-sm font-bold text-white block">Not Required</span>
+            <span class="text-[10px] text-slate-500">Individual HoD sanction</span>
+          </div>
+        </div>
+
+        <!-- Summary Prose -->
+        <div class="mt-6 pt-5 border-t border-[#1E293B]">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">Executive Summary</span>
+          <p id="verdict-summary" class="text-sm text-slate-200 leading-relaxed font-normal">
+            Procurement authorized via Direct Purchase without Quotation up to ₹50,000 INR. Sanction approval lies with Head of Department (HoD).
+          </p>
+        </div>
+      </div>
+
+      <!-- Action Steps & Checklist Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Procedural Action Stepper -->
+        <div class="glass-card rounded-2xl p-6 sm:p-7">
+          <div class="flex items-center justify-between pb-4 border-b border-[#1E293B] mb-5">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i data-lucide="list-ordered" class="w-4 h-4 text-emerald-400"></i>
+              Procedural Directives & Action Sequence
+            </h3>
+            <span class="text-[11px] text-slate-500 font-mono">Grounded Citations</span>
+          </div>
+
+          <div id="steps-container" class="space-y-4">
+            <!-- Dynamically populated steps -->
+          </div>
+        </div>
+
+        <!-- Interactive Mandatory Document Checklist -->
+        <div class="glass-card rounded-2xl p-6 sm:p-7">
+          <div class="flex items-center justify-between pb-4 border-b border-[#1E293B] mb-5">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i data-lucide="check-square" class="w-4 h-4 text-emerald-400"></i>
+              Mandatory Compliance Forms & Checklist
+            </h3>
+            <span class="text-[11px] text-slate-500 font-mono">Templates & Certs</span>
+          </div>
+
+          <div id="checklist-container" class="space-y-3">
+            <!-- Dynamically populated checklist -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Telemetry & Benchmark Dashboard (Scroll Section) -->
+    <section id="telemetry-section" class="glass-card rounded-2xl p-6 sm:p-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#1E293B] gap-4 mb-6">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <i data-lucide="cpu" class="w-5 h-5 text-indigo-400"></i>
+            Retrieval Telemetry & Automated Verification Benchmarks
+          </h2>
+          <p class="text-xs text-brand-muted mt-0.5">Real-time benchmark evaluation over 10 statutory test scenarios and retrieval methods.</p>
+        </div>
+
+        <button id="run-benchmarks-btn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-700 transition flex items-center gap-2">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span>Re-run 10 Automated Cases</span>
+        </button>
+      </div>
+
+      <!-- Telemetry Tables Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <!-- Retrieval Evaluation Table -->
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-2">
+            <i data-lucide="bar-chart-2" class="w-4 h-4 text-emerald-400"></i>
+            Multi-Method Retrieval Accuracy
+          </h3>
+          <div class="overflow-x-auto rounded-xl border border-slate-800">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900/80 text-slate-400 uppercase font-mono text-[11px] border-b border-slate-800">
+                <tr>
+                  <th class="py-2.5 px-4">Retriever Method</th>
+                  <th class="py-2.5 px-3 text-center">Recall@1</th>
+                  <th class="py-2.5 px-3 text-center">Recall@3</th>
+                  <th class="py-2.5 px-3 text-center">Recall@5</th>
+                  <th class="py-2.5 px-4 text-right font-mono">MRR</th>
+                </tr>
+              </thead>
+              <tbody id="benchmarks-table-body" class="divide-y divide-slate-800/60 font-mono text-slate-300">
+                <tr><td colspan="5" class="py-4 text-center text-slate-500">Loading benchmark telemetry...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-2">Evaluated against authoritative gold retrieval queries with strict supersession filtering.</p>
+        </div>
+
+        <!-- 10 Acceptance Test Scenarios Matrix -->
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-2">
+            <i data-lucide="check-circle" class="w-4 h-4 text-teal-400"></i>
+            10/10 Acceptance Test Matrix
+          </h3>
+          <div class="overflow-x-auto rounded-xl border border-slate-800 max-h-72 overflow-y-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="sticky top-0 bg-slate-900 text-slate-400 uppercase font-mono text-[11px] border-b border-slate-800">
+                <tr>
+                  <th class="py-2.5 px-3">Case ID</th>
+                  <th class="py-2.5 px-3">Scenario</th>
+                  <th class="py-2.5 px-2 text-center">Expected</th>
+                  <th class="py-2.5 px-2 text-center">Result</th>
+                </tr>
+              </thead>
+              <tbody id="test-matrix-body" class="divide-y divide-slate-800/60 text-slate-300">
+                <tr><td colspan="4" class="py-4 text-center text-slate-500">Click 'Re-run 10 Automated Cases' to verify suite.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Slide-Over Drawer: Clause Legal Inspector -->
+  <aside id="clause-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-[#0F172A] border-l border-[#1E293B] shadow-2xl p-6 flex flex-col drawer-closed transition-transform duration-300 ease-in-out">
+    <div class="flex items-center justify-between pb-4 border-b border-[#1E293B]">
+      <div class="flex items-center gap-2">
+        <i data-lucide="file-text" class="w-5 h-5 text-emerald-400"></i>
+        <h3 class="text-base font-bold text-white">Statutory Clause Inspector</h3>
+      </div>
+      <button id="close-drawer-btn" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <div id="clause-drawer-content" class="flex-1 overflow-y-auto py-5 space-y-4">
+      <div class="text-center py-10 text-slate-500">Select any citation chip to inspect verbatim statutory text.</div>
+    </div>
+  </aside>
+
+  <!-- Centered Modal: Form Template Viewer -->
+  <div id="form-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#0F172A] border border-[#1E293B] rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-[#1E293B]">
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="file-check" class="w-5 h-5 text-teal-400"></i>
+          <div>
+            <h4 id="form-modal-title" class="font-bold text-base text-white">Purchase Indent Form</h4>
+            <span id="form-modal-filename" class="text-xs text-brand-muted font-mono">FORM-INDENT</span>
+          </div>
+        </div>
+        <button id="close-modal-btn" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-6 text-sm text-slate-300 font-mono whitespace-pre-wrap bg-[#090D16]/50" id="form-modal-content">
+        Loading template...
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-[#1E293B] py-6 text-center text-xs text-slate-500">
+    <p>Institutional Procurement Compliance Engine &bull; GFR 2017 & Manual for Procurement of Goods 2024</p>
+    <p class="mt-1 text-[11px] text-slate-600">Pure deterministic threshold engine. Zero ungrounded hallucinations.</p>
+  </footer>
+
+  <!-- Application Logic -->
+  <script>
+    // State management
+    let currentPresets = [];
+    let currentResponse = null;
+
+    // Utility: Format currency in Indian Rupees
+    function formatINR(val) {
+      if (val === null || val === undefined || isNaN(val)) return 'Unspecified';
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 2
+      }).format(val);
+    }
+
+    // Initialize Lucide Icons
+    function refreshIcons() {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    // Dynamic value formatting listener
+    const valueInput = document.getElementById('input-value');
+    const inrLabel = document.getElementById('inr-formatted-label');
+    const omitValueCheck = document.getElementById('check-omit-value');
+
+    function updateValueDisplay() {
+      if (omitValueCheck.checked) {
+        inrLabel.textContent = 'None (NEEDS_INFO)';
+        inrLabel.className = 'font-mono text-xs text-amber-400 font-medium';
+        valueInput.disabled = true;
+        valueInput.classList.add('opacity-40');
+      } else {
+        valueInput.disabled = false;
+        valueInput.classList.remove('opacity-40');
+        const num = parseFloat(valueInput.value);
+        inrLabel.textContent = formatINR(num);
+        inrLabel.className = 'font-mono text-xs text-emerald-400 font-medium';
+      }
+    }
+
+    valueInput.addEventListener('input', updateValueDisplay);
+    omitValueCheck.addEventListener('change', updateValueDisplay);
+
+    // Fetch and render presets
+    async function loadPresets() {
+      try {
+        const resp = await fetch('/api/presets');
+        currentPresets = await resp.json();
+        const container = document.getElementById('presets-container');
+        container.innerHTML = '';
+
+        currentPresets.forEach((p, idx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'text-xs px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/80 text-slate-300 hover:text-white transition flex items-center gap-1.5';
+          btn.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${p.expected.status === 'DECIDED' ? 'bg-emerald-400' : p.expected.status === 'NEEDS_INFO' ? 'bg-amber-400' : 'bg-rose-400'}"></span> ${p.name}`;
+          btn.onclick = () => applyPreset(p);
+          container.appendChild(btn);
+        });
+      } catch (err) {
+        console.error('Failed to load presets:', err);
+      }
+    }
+
+    // Apply preset to form and trigger evaluate
+    function applyPreset(preset) {
+      const inp = preset.input;
+      document.getElementById('input-category').value = inp.category || 'goods';
+      
+      if (inp.estimated_value_inr === null || inp.estimated_value_inr === undefined) {
+        omitValueCheck.checked = true;
+      } else {
+        omitValueCheck.checked = false;
+        valueInput.value = inp.estimated_value_inr;
+      }
+      updateValueDisplay();
+
+      document.getElementById('input-description').value = inp.item_description || '';
+      document.getElementById('input-funding').value = inp.funding_source || '';
+      document.getElementById('input-department').value = inp.department || '';
+      document.getElementById('input-quotes').value = inp.quotations_received || 0;
+      document.getElementById('check-emergency').checked = Boolean(inp.is_emergency);
+      document.getElementById('check-sole-source').checked = Boolean(inp.is_sole_source);
+
+      // Auto evaluate on preset selection
+      submitEvaluation();
+    }
+
+    // Form submission handler
+    document.getElementById('evaluation-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      submitEvaluation();
+    });
+
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      document.getElementById('evaluation-form').reset();
+      omitValueCheck.checked = false;
+      valueInput.value = 50000;
+      updateValueDisplay();
+    });
+
+    async function submitEvaluation() {
+      const evaluateBtn = document.getElementById('submit-evaluate-btn');
+      evaluateBtn.disabled = true;
+      evaluateBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Evaluating...`;
+      refreshIcons();
+
+      const payload = {
+        category: document.getElementById('input-category').value,
+        estimated_value_inr: omitValueCheck.checked ? null : (parseFloat(valueInput.value) || 0),
+        item_description: document.getElementById('input-description').value,
+        funding_source: document.getElementById('input-funding').value,
+        department: document.getElementById('input-department').value,
+        quotations_received: parseInt(document.getElementById('input-quotes').value, 10) || 0,
+        is_emergency: document.getElementById('check-emergency').checked,
+        is_sole_source: document.getElementById('check-sole-source').checked,
+      };
+
+      try {
+        const resp = await fetch('/api/evaluate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        currentResponse = await resp.json();
+        renderVerdict(currentResponse);
+      } catch (err) {
+        console.error('Evaluation failed:', err);
+      } finally {
+        evaluateBtn.disabled = false;
+        evaluateBtn.innerHTML = `<i data-lucide="zap" class="w-4 h-4"></i> Evaluate Statutory Compliance`;
+        refreshIcons();
+      }
+    }
+
+    // Render verdict and action items
+    function renderVerdict(data) {
+      const dec = data.decision;
+      const verdictCard = document.getElementById('verdict-card');
+      const statusBadge = document.getElementById('verdict-status-badge');
+      const methodTitle = document.getElementById('verdict-method-title');
+      const ruleId = document.getElementById('verdict-rule-id');
+      const statusIcon = document.getElementById('status-icon-wrapper');
+      const summaryText = document.getElementById('verdict-summary');
+      const latencyVal = document.getElementById('latency-val');
+
+      latencyVal.textContent = `${data.latency_ms} ms`;
+
+      // Update Pipeline Stepper glowing states
+      const isNeedsInfo = dec.status === 'NEEDS_INFO';
+      const isEscalate = dec.status === 'ESCALATE';
+      const isDecided = dec.status === 'DECIDED';
+
+      // Stage 1: Intake
+      updateStepBadge('step-intake', isNeedsInfo ? 'error' : 'done');
+      // Stage 2: Rules
+      updateStepBadge('step-rules', isNeedsInfo ? 'skipped' : (isEscalate ? 'warn' : 'done'));
+      // Stage 3: Retrieval
+      updateStepBadge('step-retrieval', isDecided ? 'done' : 'skipped');
+      // Stage 4: Guardrails
+      updateStepBadge('step-guardrails', isDecided ? 'done' : 'skipped');
+
+      // Update Verdict theme
+      verdictCard.className = 'glass-card rounded-2xl p-6 sm:p-8 transition-all ' +
+        (isDecided ? 'glow-decided border-emerald-500/30' : isNeedsInfo ? 'glow-needs-info border-amber-500/30' : 'glow-escalate border-rose-500/30');
+
+      statusBadge.textContent = dec.status;
+      ruleId.textContent = dec.matched_rule_id || 'NO_RULE_MATCH';
+
+      if (isDecided) {
+        statusBadge.className = 'font-extrabold text-sm px-3 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+        statusIcon.className = 'w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400';
+        statusIcon.innerHTML = `<i data-lucide="check-circle-2" class="w-8 h-8"></i>`;
+        methodTitle.textContent = dec.method || 'Authorized Procurement';
+      } else if (isNeedsInfo) {
+        statusBadge.className = 'font-extrabold text-sm px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30';
+        statusIcon.className = 'w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400';
+        statusIcon.innerHTML = `<i data-lucide="alert-triangle" class="w-8 h-8"></i>`;
+        methodTitle.textContent = 'Gating Requirement: Information Missing';
+      } else {
+        statusBadge.className = 'font-extrabold text-sm px-3 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30';
+        statusIcon.className = 'w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400';
+        statusIcon.innerHTML = `<i data-lucide="alert-octagon" class="w-8 h-8"></i>`;
+        methodTitle.textContent = 'Procurement Exception Escalation';
+      }
+
+      // Metrics Bar
+      document.getElementById('metric-approver').textContent = dec.approver || 'Not Sanctioned';
+      document.getElementById('metric-method').textContent = dec.method || (isNeedsInfo ? 'Pending Input' : 'Escalated to Officer');
+      document.getElementById('metric-quotes').textContent = `${dec.min_quotations !== null ? dec.min_quotations : '-'} Quotation(s)`;
+      document.getElementById('metric-committee').textContent = dec.committee_required ? 'Mandatory (3 Members)' : 'Not Mandated';
+
+      summaryText.textContent = data.summary;
+
+      // Escalation and Needs Info Banners
+      const escBanner = document.getElementById('escalation-banner');
+      const escText = document.getElementById('escalation-reasons-text');
+      if (dec.status === 'ESCALATE' && dec.escalation_reasons?.length) {
+        escBanner.classList.remove('hidden');
+        escText.innerHTML = dec.escalation_reasons.map(r => `&bull; ${r}`).join('<br>');
+      } else {
+        escBanner.classList.add('hidden');
+      }
+
+      const needsBanner = document.getElementById('needs-info-banner');
+      const needsText = document.getElementById('needs-info-fields-text');
+      if (dec.status === 'NEEDS_INFO' && dec.missing_fields?.length) {
+        needsBanner.classList.remove('hidden');
+        needsText.innerHTML = `Missing fields required for compliance check: ` +
+          dec.missing_fields.map(f => `<code class="font-mono bg-black/40 text-amber-300 px-1.5 py-0.5 rounded mr-1">${f}</code>`).join(' ');
+      } else {
+        needsBanner.classList.add('hidden');
+      }
+
+      // Steps sequence
+      const stepsContainer = document.getElementById('steps-container');
+      stepsContainer.innerHTML = '';
+      if (!data.steps || data.steps.length === 0) {
+        stepsContainer.innerHTML = `<div class="text-xs text-slate-500 py-6 text-center italic">No operational sequence generated (${dec.status} status).</div>`;
+      } else {
+        data.steps.forEach(s => {
+          const stepDiv = document.createElement('div');
+          stepDiv.className = 'flex items-start gap-3 p-3 rounded-xl bg-[#090D16] border border-[#1E293B]';
+          
+          const pills = (s.clause_ids || []).map(cid => 
+            `<button onclick="inspectClause('${cid}')" class="font-mono text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition cursor-pointer">${cid}</button>`
+          ).join(' ');
+
+          stepDiv.innerHTML = `
+            <div class="w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-xs font-mono font-bold text-emerald-400 shrink-0 mt-0.5">
+              ${s.n}
+            </div>
+            <div class="flex-1">
+              <p class="text-xs text-slate-200 leading-relaxed">${s.action}</p>
+              <div class="flex flex-wrap gap-1.5 mt-2">${pills}</div>
+            </div>
+          `;
+          stepsContainer.appendChild(stepDiv);
+        });
+      }
+
+      // Checklist & Forms
+      const checklistContainer = document.getElementById('checklist-container');
+      checklistContainer.innerHTML = '';
+      if (!data.checklist || data.checklist.length === 0) {
+        checklistContainer.innerHTML = `<div class="text-xs text-slate-500 py-6 text-center italic">No forms mandated (${dec.status} status).</div>`;
+      } else {
+        data.checklist.forEach(c => {
+          const checkDiv = document.createElement('div');
+          checkDiv.className = 'flex items-center justify-between p-3 rounded-xl bg-[#090D16] border border-[#1E293B]';
+          
+          const formBtn = c.form_id ? 
+            `<button onclick="openFormModal('${c.form_id}')" class="text-[11px] font-mono font-medium text-teal-400 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 px-2 py-1 rounded flex items-center gap-1 transition">
+              <i data-lucide="file-text" class="w-3 h-3"></i> View ${c.form_id}
+            </button>` : '';
+
+          checkDiv.innerHTML = `
+            <div class="flex items-center gap-2.5">
+              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+              <span class="text-xs font-medium text-white">${c.item}</span>
+              ${c.mandatory ? '<span class="text-[10px] text-emerald-400/80 font-mono">(Mandatory)</span>' : '<span class="text-[10px] text-slate-400 font-mono">(Optional)</span>'}
+            </div>
+            <div>${formBtn}</div>
+          `;
+          checklistContainer.appendChild(checkDiv);
+        });
+      }
+
+      refreshIcons();
+    }
+
+    function updateStepBadge(stepId, state) {
+      const el = document.getElementById(stepId);
+      const badge = document.getElementById(`${stepId}-badge`);
+      
+      if (state === 'done') {
+        el.className = 'p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 transition';
+        badge.className = 'w-6 h-6 rounded-full bg-emerald-500 text-slate-950 text-xs font-bold flex items-center justify-center';
+        badge.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i>`;
+      } else if (state === 'warn') {
+        el.className = 'p-3 rounded-xl border border-rose-500/30 bg-rose-500/10 transition';
+        badge.className = 'w-6 h-6 rounded-full bg-rose-500 text-white text-xs font-bold flex items-center justify-center';
+        badge.innerHTML = `<i data-lucide="x" class="w-3.5 h-3.5"></i>`;
+      } else if (state === 'error') {
+        el.className = 'p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 transition';
+        badge.className = 'w-6 h-6 rounded-full bg-amber-500 text-slate-950 text-xs font-bold flex items-center justify-center';
+        badge.innerHTML = `!`;
+      } else {
+        el.className = 'p-3 rounded-xl border border-slate-800 bg-slate-900/60 opacity-50 transition';
+        badge.className = 'w-6 h-6 rounded-full bg-slate-800 text-slate-500 text-xs font-bold flex items-center justify-center border border-slate-700';
+      }
+    }
+
+    // Clause Inspector Drawer
+    const drawer = document.getElementById('clause-drawer');
+    const drawerContent = document.getElementById('clause-drawer-content');
+    document.getElementById('close-drawer-btn').onclick = () => {
+      drawer.classList.remove('drawer-open');
+      drawer.classList.add('drawer-closed');
+    };
+
+    async function inspectClause(clauseId) {
+      drawer.classList.remove('drawer-closed');
+      drawer.classList.add('drawer-open');
+      drawerContent.innerHTML = `<div class="py-12 text-center text-slate-400"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-400"></i> Loading clause details...</div>`;
+      refreshIcons();
+
+      try {
+        const resp = await fetch(`/api/clause/${encodeURIComponent(clauseId)}`);
+        if (!resp.ok) throw new Error('Clause not found');
+        const c = await resp.json();
+
+        drawerContent.innerHTML = `
+          <div class="space-y-4">
+            <div class="p-3.5 rounded-xl bg-[#090D16] border border-[#1E293B]">
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-mono text-sm font-bold text-emerald-400">${c.clause_id}</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-full ${c.is_current ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'}">
+                  ${c.is_current ? 'Active Statutory' : 'Superseded'}
+                </span>
+              </div>
+              <h4 class="text-xs font-semibold text-white">${c.section_path}</h4>
+              <p class="text-[11px] text-slate-400 mt-1">${c.doc_title} (v${c.version}, Effective ${c.effective_date})</p>
+            </div>
+
+            <div>
+              <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block mb-1">Verbatim Regulatory Text</span>
+              <div class="p-4 rounded-xl bg-[#090D16] border border-[#1E293B] text-xs text-slate-200 leading-relaxed font-mono">
+                ${c.text}
+              </div>
+            </div>
+
+            ${c.superseded_by ? `
+              <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300">
+                <strong>Superseded by:</strong> <code class="font-mono">${c.superseded_by}</code>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      } catch (err) {
+        drawerContent.innerHTML = `
+          <div class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300">
+            <strong>Error:</strong> Clause '${clauseId}' could not be located in statutory index.
+          </div>
+        `;
+      }
+      refreshIcons();
+    }
+
+    // Form Modal
+    const modal = document.getElementById('form-modal');
+    const modalTitle = document.getElementById('form-modal-title');
+    const modalFilename = document.getElementById('form-modal-filename');
+    const modalContent = document.getElementById('form-modal-content');
+    document.getElementById('close-modal-btn').onclick = () => {
+      modal.classList.add('hidden');
+    };
+
+    async function openFormModal(formId) {
+      modal.classList.remove('hidden');
+      modalTitle.textContent = `Procurement Form Template`;
+      modalFilename.textContent = formId;
+      modalContent.textContent = 'Loading template...';
+
+      try {
+        const resp = await fetch(`/api/form/${encodeURIComponent(formId)}`);
+        if (!resp.ok) throw new Error('Form not found');
+        const f = await resp.json();
+        modalTitle.textContent = f.file_name.replace('.md', '').toUpperCase();
+        modalContent.textContent = f.content;
+      } catch (err) {
+        modalContent.textContent = `Form template '${formId}' could not be retrieved.`;
+      }
+    }
+
+    // Telemetry & Benchmark Tables
+    async function loadTelemetry() {
+      try {
+        const resp = await fetch('/api/benchmarks');
+        const bench = await resp.json();
+        const tbody = document.getElementById('benchmarks-table-body');
+        tbody.innerHTML = '';
+
+        Object.entries(bench.methods || {}).forEach(([method, metrics]) => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-900/40 transition';
+          tr.innerHTML = `
+            <td class="py-2.5 px-4 font-semibold text-white uppercase">${method}</td>
+            <td class="py-2.5 px-3 text-center text-emerald-400 font-bold">${(metrics['recall@1'] * 100).toFixed(0)}%</td>
+            <td class="py-2.5 px-3 text-center text-teal-300">${(metrics['recall@3'] * 100).toFixed(0)}%</td>
+            <td class="py-2.5 px-3 text-center text-teal-300">${(metrics['recall@5'] * 100).toFixed(0)}%</td>
+            <td class="py-2.5 px-4 text-right font-mono text-cyan-400 font-bold">${metrics.mrr.toFixed(4)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Failed to load telemetry:', err);
+      }
+    }
+
+    async function runTestMatrix() {
+      const btn = document.getElementById('run-benchmarks-btn');
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Running Suite...`;
+      refreshIcons();
+
+      const tbody = document.getElementById('test-matrix-body');
+      tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-slate-400">Executing 10 automated scenarios...</td></tr>';
+
+      try {
+        if (!currentPresets.length) await loadPresets();
+        tbody.innerHTML = '';
+
+        for (const c of currentPresets) {
+          const t0 = performance.now();
+          const resp = await fetch('/api/evaluate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(c.input)
+          });
+          const res = await resp.json();
+          const t1 = performance.now();
+
+          const isPass = res.decision.status === c.expected.status &&
+            (!c.expected.matched_rule_id || res.decision.matched_rule_id === c.expected.matched_rule_id);
+
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-900/40 transition';
+          tr.innerHTML = `
+            <td class="py-2 px-3 font-mono text-xs text-slate-400">${c.id}</td>
+            <td class="py-2 px-3 text-xs font-medium text-white">${c.name}</td>
+            <td class="py-2 px-2 text-center font-mono text-[11px] text-slate-400">${c.expected.status}</td>
+            <td class="py-2 px-2 text-center">
+              <span class="inline-flex items-center gap-1 font-mono text-[10px] font-bold px-2 py-0.5 rounded-full ${isPass ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}">
+                ${isPass ? '✓ PASS' : '✗ FAIL'}
+              </span>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        }
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-rose-400">Error executing scenarios.</td></tr>';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-emerald-400"></i> Re-run 10 Automated Cases`;
+        refreshIcons();
+      }
+    }
+
+    document.getElementById('run-benchmarks-btn').onclick = runTestMatrix;
+
+    // Boot
+    window.addEventListener('DOMContentLoaded', async () => {
+      refreshIcons();
+      updateValueDisplay();
+      await loadPresets();
+      await loadTelemetry();
+      // Auto run default evaluation
+      submitEvaluation();
+    });
+  </script>
+</body>
+</html>

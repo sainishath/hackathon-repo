@@ -1,4 +1,4 @@
-.PHONY: setup ingest test run eval clean
+.PHONY: setup ingest test run run-web eval clean
 
 PYTHON ?= python
 
@@ -13,6 +13,9 @@ test:
 
 run:
 	$(PYTHON) -m streamlit run app/streamlit_app.py
+
+run-web:
+	uvicorn procurement.api:app --host 127.0.0.1 --port 8000 --reload
 
 eval:
 	$(PYTHON) -m procurement.retrieval.evaluate

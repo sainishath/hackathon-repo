@@ -62,3 +62,5 @@ class ProcurementPipeline:
         )
 
         return response
+
+    process = run
