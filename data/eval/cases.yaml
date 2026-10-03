@@ -1,151 +1,155 @@
 cases:
-  - id: "CASE-01"
-    name: "Direct Purchase of Stationery Goods"
+  - id: "case_below_threshold"
+    name: "Below Threshold Direct Purchase (INR 15,000 Goods)"
     input:
-      item_description: "Office stationery and printer cartridges"
+      item_description: "Office stationery kits and printing paper"
       category: "goods"
       estimated_value_inr: 15000.0
       funding_source: "Department Operating Budget"
-      department: "Computer Science"
+      department: "Computer Science & Engineering"
       is_emergency: false
       is_sole_source: false
     expected:
       status: "DECIDED"
-      matched_rule_id: "FIXTURE:RULE-101"
+      matched_rule_id: "RULE_DIRECT_PURCHASE"
       method: "Direct Purchase without Quotation"
-      approver: "Head of Department"
+      approver: "Head of Department (HoD)"
 
-  - id: "CASE-02"
-    name: "Boundary Exact Value INR 25,000 (Upper bound Direct Purchase)"
+  - id: "case_mid_band"
+    name: "Mid Band Local Purchase Committee (INR 1,50,000 Goods)"
     input:
-      item_description: "Lab consumable kits"
+      item_description: "Lab measurement equipment and power supply"
       category: "goods"
-      estimated_value_inr: 25000.0
-      funding_source: "Student Lab Fund"
-      department: "Chemistry"
-      is_emergency: false
-      is_sole_source: false
-    expected:
-      status: "DECIDED"
-      matched_rule_id: "FIXTURE:RULE-101"
-      method: "Direct Purchase without Quotation"
-      approver: "Head of Department"
-
-  - id: "CASE-03"
-    name: "Local Purchase Committee (LPC) Goods"
-    input:
-      item_description: "Desktop computers for faculty"
-      category: "goods"
-      estimated_value_inr: 120000.0
+      estimated_value_inr: 150000.0
       funding_source: "Institute Capital Fund"
-      department: "Physics"
+      department: "Electrical Engineering"
       is_emergency: false
       is_sole_source: false
+      quotations_received: 3
     expected:
       status: "DECIDED"
-      matched_rule_id: "FIXTURE:RULE-102"
-      method: "Purchase by Local Purchase Committee (LPC)"
+      matched_rule_id: "RULE_PURCHASE_COMMITTEE"
+      method: "Purchase by Local Purchase Committee"
+      approver: "Dean (R&D / Academic)"
       committee_required: true
 
-  - id: "CASE-04"
-    name: "Boundary Exact Value INR 250,000 (Upper bound LPC)"
+  - id: "case_above_top_band"
+    name: "Above Top Band Advertised Tender (INR 35,00,000 Goods)"
     input:
-      item_description: "Network switches and rack"
+      item_description: "High performance GPU computing server cluster"
       category: "goods"
-      estimated_value_inr: 250000.0
-      funding_source: "IT Infrastructure Grant"
+      estimated_value_inr: 3500000.0
+      funding_source: "Central Research Infrastructure Grant"
       department: "Computer Center"
       is_emergency: false
       is_sole_source: false
+      quotations_received: 3
     expected:
       status: "DECIDED"
-      matched_rule_id: "FIXTURE:RULE-102"
-      method: "Purchase by Local Purchase Committee (LPC)"
+      matched_rule_id: "RULE_OPEN_TENDER"
+      method: "Advertised Tender Enquiry (ATE / CPPP / GeM)"
+      approver: "Director / Board of Governors"
       committee_required: true
 
-  - id: "CASE-05"
-    name: "Limited Tender Enquiry (LTE) Laboratory Equipment"
+  - id: "case_exact_boundary"
+    name: "Exact Boundary Value INR 50,000.00 (Upper Bound Direct Purchase)"
     input:
-      item_description: "High performance spectrometer"
+      item_description: "Department specialized printer and high yield cartridges"
       category: "goods"
-      estimated_value_inr: 1200000.0
-      funding_source: "Research Project Grant"
-      department: "Materials Engineering"
+      estimated_value_inr: 50000.0
+      funding_source: "Student Laboratory Budget"
+      department: "Mechanical Engineering"
       is_emergency: false
       is_sole_source: false
     expected:
       status: "DECIDED"
-      matched_rule_id: "FIXTURE:RULE-103"
-      method: "Limited Tender Enquiry (LTE)"
-      approver: "Registrar / Financial Adviser"
+      matched_rule_id: "RULE_DIRECT_PURCHASE"
+      method: "Direct Purchase without Quotation"
+      approver: "Head of Department (HoD)"
+      committee_required: false
 
-  - id: "CASE-06"
-    name: "Boundary Exact Value INR 2,500,000 (Upper bound LTE)"
+  - id: "case_missing_detail"
+    name: "Missing Value Detail (NEEDS_INFO)"
     input:
-      item_description: "Server cluster expansion nodes"
-      category: "goods"
-      estimated_value_inr: 2500000.0
-      funding_source: "Supercomputing Initiative"
-      department: "Data Center"
-      is_emergency: false
-      is_sole_source: false
-    expected:
-      status: "DECIDED"
-      matched_rule_id: "FIXTURE:RULE-103"
-      method: "Limited Tender Enquiry (LTE)"
-      approver: "Registrar / Financial Adviser"
-
-  - id: "CASE-07"
-    name: "Advertised Open Tender High Value Equipment"
-    input:
-      item_description: "Electron Microscope (Cryo-TEM)"
-      category: "goods"
-      estimated_value_inr: 15000000.0
-      funding_source: "Central Government Infrastructure Grant"
-      department: "Central Instrumentation Facility"
-      is_emergency: false
-      is_sole_source: false
-    expected:
-      status: "DECIDED"
-      matched_rule_id: "FIXTURE:RULE-104"
-      method: "Advertised Open Tender"
-      approver: "Director / Board of Governors"
-
-  - id: "CASE-08"
-    name: "Missing Estimated Value (NEEDS_INFO)"
-    input:
-      item_description: "Classroom furniture replacement"
+      item_description: "Classroom multimedia projection systems"
       category: "goods"
       estimated_value_inr: null
-      funding_source: "Campus Estate"
-      department: "Administration"
+      funding_source: "Academic Fund"
+      department: "Civil Engineering"
     expected:
       status: "NEEDS_INFO"
       missing_fields:
         - "estimated_value_inr"
 
-  - id: "CASE-09"
-    name: "Emergency Urgency Exception without Explicit Rule (ESCALATE)"
+  - id: "case_emergency_exception"
+    name: "Emergency Breakdown Procurement (INR 40,000 Goods with is_emergency)"
     input:
-      item_description: "Emergency oxygen plant repair"
+      item_description: "Urgent HVAC cooling system compressor repair kit"
       category: "goods"
-      estimated_value_inr: 80000.0
-      funding_source: "Health Center Fund"
-      department: "Health Center"
+      estimated_value_inr: 40000.0
+      funding_source: "Emergency Maintenance Head"
+      department: "Estate Maintenance"
       is_emergency: true
+      is_sole_source: false
+    expected:
+      status: "DECIDED"
+      matched_rule_id: "RULE_EMERGENCY"
+      approver: "Head of Department (Report to Director within 48h)"
+
+  - id: "case_sole_source_exception"
+    name: "Sole Source Proprietary Exception (INR 4,00,000 Goods with is_sole_source)"
+    input:
+      item_description: "Proprietary optical sensor replacement from OEM"
+      category: "goods"
+      estimated_value_inr: 400000.0
+      funding_source: "R&D Sponsored Project"
+      department: "Physics"
+      is_emergency: false
+      is_sole_source: true
+      quotations_received: 1
+    expected:
+      status: "DECIDED"
+      matched_rule_id: "RULE_SOLE_SOURCE"
+      approver: "Director"
+
+  - id: "case_superseded_version_query"
+    name: "Superseded vs Current Rule Resolution (INR 25,000 under 2024 manual)"
+    input:
+      item_description: "Analytical chemistry reagents"
+      category: "goods"
+      estimated_value_inr: 25000.0
+      funding_source: "Department Research Fund"
+      department: "Chemistry"
+      is_emergency: false
+      is_sole_source: false
+    expected:
+      status: "DECIDED"
+      matched_rule_id: "RULE_DIRECT_PURCHASE"
+      method: "Direct Purchase without Quotation"
+
+  - id: "case_unmapped_category"
+    name: "Unmapped Category Escalation (Consultancy)"
+    input:
+      item_description: "Strategic curriculum modernization consultant"
+      category: "Consultancy"
+      estimated_value_inr: 200000.0
+      funding_source: "Institutional Development Fund"
+      department: "Dean Academics"
+      is_emergency: false
       is_sole_source: false
     expected:
       status: "ESCALATE"
 
-  - id: "CASE-10"
-    name: "Sole Source Proprietary Exception (ESCALATE)"
+  - id: "case_ambiguous_quotations"
+    name: "Insufficient Quotations Escalation (LPC with only 1 quotation)"
     input:
-      item_description: "Proprietary software license renewal"
-      category: "services"
-      estimated_value_inr: 180000.0
-      funding_source: "Library Fund"
-      department: "Central Library"
+      item_description: "Server rack accessories"
+      category: "goods"
+      estimated_value_inr: 120000.0
+      funding_source: "IT Grant"
+      department: "Computer Center"
       is_emergency: false
-      is_sole_source: true
+      is_sole_source: false
+      quotations_received: 1
     expected:
       status: "ESCALATE"

@@ -20,6 +20,9 @@ class Clause(BaseModel):
     superseded_by: Optional[str] = Field(
         default=None, description="Clause ID that superseded this clause, if inactive"
     )
+    authority_rank: Optional[int] = Field(
+        default=1, description="Authority ranking (1=GFR, 2=Manual, 3=Annex, 4=Forms)"
+    )
 
 
 class ScoredClause(BaseModel):
@@ -35,8 +38,8 @@ class CaseInput(BaseModel):
     item_description: Optional[str] = Field(
         default=None, description="Detailed description of the item or service to procure"
     )
-    category: Optional[Literal["goods", "services", "works"]] = Field(
-        default=None, description="Procurement category: goods, services, or works"
+    category: Optional[str] = Field(
+        default="goods", description="Procurement category e.g. goods, services, works, consultancy"
     )
     estimated_value_inr: Optional[float] = Field(
         default=None, description="Total estimated procurement value in INR"

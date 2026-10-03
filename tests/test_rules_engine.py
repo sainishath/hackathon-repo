@@ -16,59 +16,71 @@ def test_boundary_zero(engine):
     )
     decision = engine.evaluate(case)
     assert decision.status == "DECIDED"
-    assert decision.matched_rule_id == "FIXTURE:RULE-101"
+    assert decision.matched_rule_id == "RULE_DIRECT_PURCHASE"
     assert decision.method == "Direct Purchase without Quotation"
+    assert decision.approver == "Head of Department (HoD)"
 
 
 def test_boundary_direct_purchase_exact_upper(engine):
-    # Rule 101: 0 <= value <= 25,000 (max_inclusive: True)
+    # Rule Direct Purchase: 0 <= value <= 50,000 (inclusive_max: True)
     case = CaseInput(
         category="goods",
-        estimated_value_inr=25000.0,
-        item_description="Office supplies",
+        estimated_value_inr=50000.0,
+        item_description="Specialized lab printer and toner",
     )
     decision = engine.evaluate(case)
     assert decision.status == "DECIDED"
-    assert decision.matched_rule_id == "FIXTURE:RULE-101"
+    assert decision.matched_rule_id == "RULE_DIRECT_PURCHASE"
     assert decision.method == "Direct Purchase without Quotation"
+    assert decision.approver == "Head of Department (HoD)"
+    assert decision.committee_required is False
+    assert decision.min_quotations == 0
 
 
 def test_boundary_lpc_just_above_direct(engine):
-    # Rule 102: 25,000 < value <= 250,000 (min_inclusive: False)
+    # Rule LPC: 50,000 < value <= 500,000 (inclusive_min: False)
     case = CaseInput(
         category="goods",
-        estimated_value_inr=25000.01,
-        item_description="Lab supplies",
+        estimated_value_inr=50000.01,
+        item_description="Lab measurement tools",
+        quotations_received=3,
     )
     decision = engine.evaluate(case)
     assert decision.status == "DECIDED"
-    assert decision.matched_rule_id == "FIXTURE:RULE-102"
-    assert decision.method == "Purchase by Local Purchase Committee (LPC)"
+    assert decision.matched_rule_id == "RULE_PURCHASE_COMMITTEE"
+    assert decision.method == "Purchase by Local Purchase Committee"
+    assert decision.approver == "Dean (R&D / Academic)"
+    assert decision.committee_required is True
+    assert decision.min_quotations == 3
 
 
 def test_boundary_lpc_exact_upper(engine):
-    # Exactly 250,000 should fall into LPC
+    # Exactly 500,000 should fall into LPC
     case = CaseInput(
         category="goods",
-        estimated_value_inr=250000.0,
+        estimated_value_inr=500000.0,
         item_description="Department servers",
+        quotations_received=3,
     )
     decision = engine.evaluate(case)
     assert decision.status == "DECIDED"
-    assert decision.matched_rule_id == "FIXTURE:RULE-102"
+    assert decision.matched_rule_id == "RULE_PURCHASE_COMMITTEE"
+    assert decision.approver == "Dean (R&D / Academic)"
 
 
 def test_boundary_lte_just_above_lpc(engine):
-    # Rule 103: 250,000 < value <= 2,500,000 (min_inclusive: False)
+    # Rule LTE: 500,000 < value <= 2,500,000 (inclusive_min: False)
     case = CaseInput(
         category="goods",
-        estimated_value_inr=250000.01,
+        estimated_value_inr=500000.01,
         item_description="Workstations",
+        quotations_received=3,
     )
     decision = engine.evaluate(case)
     assert decision.status == "DECIDED"
-    assert decision.matched_rule_id == "FIXTURE:RULE-103"
+    assert decision.matched_rule_id == "RULE_LIMITED_TENDER"
     assert decision.method == "Limited Tender Enquiry (LTE)"
+    assert decision.approver == "Director"
 
 
 def test_boundary_lte_exact_upper(engine):
@@ -77,23 +89,27 @@ def test_boundary_lte_exact_upper(engine):
         category="goods",
         estimated_value_inr=2500000.0,
         item_description="Research equipment",
+        quotations_received=3,
     )
     decision = engine.evaluate(case)
     assert decision.status == "DECIDED"
-    assert decision.matched_rule_id == "FIXTURE:RULE-103"
+    assert decision.matched_rule_id == "RULE_LIMITED_TENDER"
+    assert decision.approver == "Director"
 
 
 def test_boundary_open_tender_above_lte(engine):
-    # Rule 104: value > 2,500,000
+    # Rule Open Tender: value > 2,500,000
     case = CaseInput(
         category="goods",
         estimated_value_inr=2500000.01,
-        item_description="Supercomputer",
+        item_description="Supercomputer GPU cluster",
+        quotations_received=3,
     )
     decision = engine.evaluate(case)
     assert decision.status == "DECIDED"
-    assert decision.matched_rule_id == "FIXTURE:RULE-104"
-    assert decision.method == "Advertised Open Tender"
+    assert decision.matched_rule_id == "RULE_OPEN_TENDER"
+    assert decision.method == "Advertised Tender Enquiry (ATE / CPPP / GeM)"
+    assert decision.approver == "Director / Board of Governors"
 
 
 def test_needs_info_missing_fields(engine):
@@ -128,11 +144,27 @@ def test_needs_info_missing_fields(engine):
     assert "item_description" in dec3.missing_fields
 
 
-def test_escalate_emergency_exception(engine):
+def test_emergency_exception_handled(engine):
+    # Emergency <= 50,000 matches RULE_EMERGENCY
     case = CaseInput(
         category="goods",
-        estimated_value_inr=10000.0,
-        item_description="Emergency medicine kits",
+        estimated_value_inr=40000.0,
+        item_description="Emergency HVAC compressor repair",
+        is_emergency=True,
+    )
+    decision = engine.evaluate(case)
+    assert decision.status == "DECIDED"
+    assert decision.matched_rule_id == "RULE_EMERGENCY"
+    assert decision.approver == "Head of Department (Report to Director within 48h)"
+    assert "INST-2026-DP4" in decision.citations
+
+
+def test_emergency_exception_above_threshold_escalates(engine):
+    # Emergency > 50,000 exceeds HoD emergency powers and must escalate
+    case = CaseInput(
+        category="goods",
+        estimated_value_inr=150000.0,
+        item_description="Major transformer explosion emergency replacement",
         is_emergency=True,
     )
     decision = engine.evaluate(case)
@@ -140,24 +172,39 @@ def test_escalate_emergency_exception(engine):
     assert any("Emergency" in r for r in decision.escalation_reasons)
 
 
-def test_escalate_sole_source_exception(engine):
+def test_sole_source_exception(engine):
     case = CaseInput(
         category="goods",
-        estimated_value_inr=10000.0,
-        item_description="Proprietary spectrometer probe",
+        estimated_value_inr=400000.0,
+        item_description="Proprietary spectrometer probe from OEM",
         is_sole_source=True,
+        quotations_received=1,
+    )
+    decision = engine.evaluate(case)
+    assert decision.status == "DECIDED"
+    assert decision.matched_rule_id == "RULE_SOLE_SOURCE"
+    assert decision.approver == "Director"
+    assert "GFR-2017-R166" in decision.citations
+
+
+def test_escalate_insufficient_quotations(engine):
+    # LPC requires 3 quotations; only 1 provided => ESCALATE
+    case = CaseInput(
+        category="goods",
+        estimated_value_inr=120000.0,
+        item_description="Lab hardware",
+        quotations_received=1,
     )
     decision = engine.evaluate(case)
     assert decision.status == "ESCALATE"
-    assert any("Sole source" in r for r in decision.escalation_reasons)
+    assert any("Insufficient quotations" in r for r in decision.escalation_reasons)
 
 
-def test_escalate_no_matching_rule(engine):
-    # Category with no matching rules or invalid band
+def test_escalate_unmapped_category(engine):
     case = CaseInput(
-        category="works",
-        estimated_value_inr=10000000.0,  # Works band only goes up to 500k in fixture
-        item_description="Major campus building construction",
+        category="Consultancy",
+        estimated_value_inr=200000.0,
+        item_description="Curriculum audit consulting",
     )
     decision = engine.evaluate(case)
     assert decision.status == "ESCALATE"

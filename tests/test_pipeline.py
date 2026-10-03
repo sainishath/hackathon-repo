@@ -46,7 +46,10 @@ def test_pipeline_all_10_cases(pipeline):
             for step in response.steps:
                 assert len(step.clause_ids) > 0
                 for cid in step.clause_ids:
-                    assert cid.startswith("FIXTURE-POLICY")
+                    assert any(
+                        cid.startswith(prefix)
+                        for prefix in ["MGP", "GFR", "INST", "FORM"]
+                    )
 
         # If NEEDS_INFO or ESCALATE, generation was skipped
         if decision.status in ("NEEDS_INFO", "ESCALATE"):

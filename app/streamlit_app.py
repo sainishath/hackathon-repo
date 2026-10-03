@@ -99,13 +99,16 @@ with tab_form:
 
         with col1:
             req_marker = " ⚡ (Required)" if "category" in required_inputs else ""
+            cat_options = ["goods", "services", "works", "Consultancy"]
             cat_val = preset_input.get("category", "goods")
-            cat_idx = ["goods", "services", "works"].index(cat_val) if cat_val in ["goods", "services", "works"] else 0
+            if cat_val not in cat_options:
+                cat_options.append(cat_val)
+            cat_idx = cat_options.index(cat_val)
             category = st.selectbox(
                 f"Procurement Category{req_marker}",
-                options=["goods", "services", "works"],
+                options=cat_options,
                 index=cat_idx,
-                help="Goods, consulting/outsourced services, or civil/electrical works.",
+                help="Goods, consulting/outsourced services, civil/electrical works, or specialized consultancies.",
             )
 
             req_marker_val = " ⚡ (Required)" if "estimated_value_inr" in required_inputs else ""

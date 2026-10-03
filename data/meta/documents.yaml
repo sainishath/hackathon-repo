@@ -1,0 +1,34 @@
+documents:
+  gfr_2017:
+    path: "data/raw/gfr_2017.pdf"
+    version: "2017"
+    authority_rank: 1
+    is_current: false
+    superseded_by: "manual_goods_2024"
+    page_ranges:
+      - [42, 50]
+  manual_goods_2022:
+    path: "data/raw/manual_goods_2022.pdf"
+    version: "2022"
+    authority_rank: 2
+    is_current: false
+    superseded_by: "manual_goods_2024"
+    page_ranges:
+      - [74, 94]
+  manual_goods_2024:
+    path: "data/raw/manual_goods_2024.pdf"
+    version: "2024"
+    authority_rank: 2
+    is_current: true
+    page_ranges:
+      - [98, 142]
+  institute_annex_2026:
+    path: "data/policies/institute_annex_2026.md"
+    version: "2026"
+    authority_rank: 3
+    is_current: true
+  forms_2026:
+    path: "data/forms/"
+    version: "2026"
+    authority_rank: 4
+    is_current: true

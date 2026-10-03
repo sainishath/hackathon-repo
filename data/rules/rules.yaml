@@ -1,4 +1,4 @@
-description: "[FIXTURE] Institutional Procurement Rules for Testing and Scaffolding"
+description: "Institutional Procurement Rules — Verified 2024 Goods Manual & Institute Annex 2026"
 
 required_inputs:
   - category
@@ -6,142 +6,128 @@ required_inputs:
   - item_description
 
 rules:
-  - rule_id: "FIXTURE:RULE-101"
-    clause_id: "FIXTURE-POLICY:1.1"
-    description: "[FIXTURE] Direct purchase of goods up to INR 25,000 without quotation"
+  - rule_id: "RULE_DIRECT_PURCHASE"
+    citations:
+      - "MGP-2024-C4.12"
+      - "INST-2026-DP1"
+    description: "Direct Purchase without Quotation up to INR 50,000 sanctioned by HoD"
     when:
       category_in: ["goods"]
-      value_min: 0.0
-      value_max: 25000.0
-      min_inclusive: true
-      max_inclusive: true
-      flags: {}
+      min_value: 0.0
+      max_value: 50000.0
+      inclusive_min: true
+      inclusive_max: true
     then:
       method: "Direct Purchase without Quotation"
-      approver: "Head of Department"
+      approver: "Head of Department (HoD)"
       min_quotations: 0
-      committee: false
-      documents:
+      committee_required: false
+      required_documents:
+        - "FORM-INDENT"
         - "Sanction Order"
-        - "Invoice / Cash Receipt"
 
-  - rule_id: "FIXTURE:RULE-102"
-    clause_id: "FIXTURE-POLICY:1.2"
-    description: "[FIXTURE] Purchase of goods from INR 25,001 to INR 250,000 via Local Purchase Committee"
+  - rule_id: "RULE_PURCHASE_COMMITTEE"
+    citations:
+      - "MGP-2024-C4.13"
+      - "INST-2026-DP2"
+    description: "Purchase by Local Purchase Committee from INR 50,001 to INR 5,00,000 sanctioned by Dean"
     when:
       category_in: ["goods"]
-      value_min: 25000.0
-      value_max: 250000.0
-      min_inclusive: false
-      max_inclusive: true
-      flags: {}
+      min_value: 50000.0
+      max_value: 500000.0
+      inclusive_min: false
+      inclusive_max: true
     then:
-      method: "Purchase by Local Purchase Committee (LPC)"
-      approver: "Dean / Associate Director"
+      method: "Purchase by Local Purchase Committee"
+      approver: "Dean (R&D / Academic)"
       min_quotations: 3
-      committee: true
-      documents:
-        - "LPC Constitution Form"
-        - "Market Survey Report"
+      committee_required: true
+      required_documents:
+        - "FORM-INDENT"
+        - "FORM-CSQ"
+        - "FORM-PCC"
         - "Sanction Order"
 
-  - rule_id: "FIXTURE:RULE-103"
-    clause_id: "FIXTURE-POLICY:1.3"
-    description: "[FIXTURE] Purchase of goods from INR 250,001 to INR 2,500,000 via Limited Tender Enquiry"
+  - rule_id: "RULE_LIMITED_TENDER"
+    citations:
+      - "GFR-2017-R162"
+      - "INST-2026-DP3"
+    description: "Limited Tender Enquiry (LTE) from INR 5,00,001 to INR 25,00,000 sanctioned by Director"
     when:
       category_in: ["goods"]
-      value_min: 250000.0
-      value_max: 2500000.0
-      min_inclusive: false
-      max_inclusive: true
-      flags: {}
+      min_value: 500000.0
+      max_value: 2500000.0
+      inclusive_min: false
+      inclusive_max: true
     then:
       method: "Limited Tender Enquiry (LTE)"
-      approver: "Registrar / Financial Adviser"
+      approver: "Director"
       min_quotations: 3
-      committee: true
-      documents:
-        - "Tender Document"
-        - "Vendor List"
-        - "Comparative Statement"
-        - "Technical Evaluation Report"
+      committee_required: true
+      required_documents:
+        - "FORM-INDENT"
+        - "Tender Enquiry Document"
+        - "FORM-CSQ"
+        - "Sanction Order"
 
-  - rule_id: "FIXTURE:RULE-104"
-    clause_id: "FIXTURE-POLICY:1.4"
-    description: "[FIXTURE] High value goods procurement exceeding INR 2,500,000 via Advertised Open Tender"
+  - rule_id: "RULE_OPEN_TENDER"
+    citations:
+      - "GFR-2017-R161"
+      - "INST-2026-DP3"
+    description: "Advertised Open Tender exceeding INR 25,00,000 sanctioned by Director / Board of Governors"
     when:
       category_in: ["goods"]
-      value_min: 2500000.0
-      value_max: null
-      min_inclusive: false
-      max_inclusive: true
-      flags: {}
+      min_value: 2500000.0
+      max_value: null
+      inclusive_min: false
+      inclusive_max: true
     then:
-      method: "Advertised Open Tender"
+      method: "Advertised Tender Enquiry (ATE / CPPP / GeM)"
       approver: "Director / Board of Governors"
       min_quotations: 3
-      committee: true
-      documents:
+      committee_required: true
+      required_documents:
         - "Open Tender Notice"
-        - "CPP Portal Publication Proof"
+        - "CPPP / GeM Publication Proof"
+        - "FORM-CSQ"
         - "Technical Evaluation Matrix"
         - "Sanction Order"
 
-  - rule_id: "FIXTURE:RULE-201"
-    clause_id: "FIXTURE-POLICY:2.1"
-    description: "[FIXTURE] Consulting or outsourced services up to INR 100,000 via direct contract"
+  - rule_id: "RULE_EMERGENCY"
+    citations:
+      - "INST-2026-DP4"
+    description: "Emergency Urgency Procurement up to INR 50,000 sanctioned by HoD reporting to Director within 48h"
     when:
-      category_in: ["services"]
-      value_min: 0.0
-      value_max: 100000.0
-      min_inclusive: true
-      max_inclusive: true
-      flags: {}
+      category_in: ["goods"]
+      is_emergency: true
+      min_value: 0.0
+      max_value: 50000.0
+      inclusive_min: true
+      inclusive_max: true
     then:
-      method: "Direct Service Engagement"
-      approver: "Head of Department"
+      method: "Emergency Purchase under Delegated Powers"
+      approver: "Head of Department (Report to Director within 48h)"
       min_quotations: 0
-      committee: false
-      documents:
-        - "Service Order Form"
-        - "Vendor Work Completion Certificate"
+      committee_required: false
+      required_documents:
+        - "FORM-INDENT"
+        - "Emergency Sanction Certificate"
+        - "Ratification Report to Director"
 
-  - rule_id: "FIXTURE:RULE-202"
-    clause_id: "FIXTURE-POLICY:2.2"
-    description: "[FIXTURE] Services between INR 100,001 and INR 1,000,000 via Limited Service Tender"
+  - rule_id: "RULE_SOLE_SOURCE"
+    citations:
+      - "GFR-2017-R166"
+      - "INST-2026-DP3"
+    description: "Proprietary Article / Sole Source Procurement approved by Director"
     when:
-      category_in: ["services"]
-      value_min: 100000.0
-      value_max: 1000000.0
-      min_inclusive: false
-      max_inclusive: true
-      flags: {}
+      category_in: ["goods", "services"]
+      is_sole_source: true
     then:
-      method: "Limited Service Tender"
-      approver: "Registrar"
-      min_quotations: 3
-      committee: true
-      documents:
-        - "Scope of Work (SOW)"
-        - "Quotation Comparative Table"
-        - "Service Agreement"
-
-  - rule_id: "FIXTURE:RULE-301"
-    clause_id: "FIXTURE-POLICY:3.1"
-    description: "[FIXTURE] Minor repair or civil/electrical works up to INR 500,000"
-    when:
-      category_in: ["works"]
-      value_min: 0.0
-      value_max: 500000.0
-      min_inclusive: true
-      max_inclusive: true
-      flags: {}
-    then:
-      method: "Minor Works Quotation"
-      approver: "Estate Officer"
-      min_quotations: 3
-      committee: false
-      documents:
-        - "Work Estimate"
-        - "Measurement Sheet"
-        - "Completion Certificate"
+      method: "Single Tender Enquiry (Sole Source / Proprietary)"
+      approver: "Director"
+      min_quotations: 1
+      committee_required: false
+      required_documents:
+        - "Proprietary Article Certificate (PAC)"
+        - "FORM-INDENT"
+        - "Director Sanction Order"

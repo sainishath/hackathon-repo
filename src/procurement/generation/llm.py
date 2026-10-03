@@ -35,8 +35,8 @@ class MockLLMClient(BaseLLMClient):
             except Exception:
                 pass
 
-        citations = decision_data.get("citations", ["FIXTURE-POLICY:1.1"])
-        primary_citation = citations[0] if citations else "FIXTURE-POLICY:1.1"
+        citations = decision_data.get("citations", ["MGP-2024-C4.12"])
+        primary_citation = citations[0] if citations else "MGP-2024-C4.12"
         method = decision_data.get("method", "Standard Procurement")
         approver = decision_data.get("approver", "Competent Financial Authority")
         min_quotes = decision_data.get("min_quotations", 3)
@@ -47,22 +47,22 @@ class MockLLMClient(BaseLLMClient):
             {
                 "n": 1,
                 "action": f"Verify financial sanction requirements and budget head approval from {approver}.",
-                "clause_ids": [primary_citation],
+                "clause_ids": citations,
             },
             {
                 "n": 2,
                 "action": f"Execute procurement method '{method}' ensuring compliance with statutory thresholds.",
-                "clause_ids": [primary_citation],
+                "clause_ids": citations,
             },
             {
                 "n": 3,
                 "action": f"Obtain at least {min_quotes} competitive quotation(s) or proceed with authorized direct purchase.",
-                "clause_ids": [primary_citation],
+                "clause_ids": citations,
             },
             {
                 "n": 4,
                 "action": f"Submit documentation to {approver} for sanction order issuance and store inwarding.",
-                "clause_ids": [primary_citation],
+                "clause_ids": citations,
             },
         ]
 
@@ -70,13 +70,19 @@ class MockLLMClient(BaseLLMClient):
         checklist = []
         for doc in req_docs:
             form_id = None
-            if "Sanction" in doc:
+            if "INDENT" in doc or "Indent" in doc:
+                form_id = "form_indent.md"
+            elif "CSQ" in doc or "Comparative" in doc:
+                form_id = "form_csq.md"
+            elif "PCC" in doc:
+                form_id = "form_pcc.md"
+            elif "Sanction" in doc:
                 form_id = "sanction_order.md"
             elif "LPC" in doc or "Survey" in doc:
                 form_id = "lpc_constitution.md"
             elif "Tender" in doc or "Notice" in doc:
                 form_id = "rfq_template.md"
-            elif "Proprietary" in doc:
+            elif "Proprietary" in doc or "PAC" in doc:
                 form_id = "sole_source_justification.md"
 
             checklist.append(

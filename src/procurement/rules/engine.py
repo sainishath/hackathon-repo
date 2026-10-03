@@ -52,7 +52,7 @@ class RulesEngine:
 
         for rule in self.config.rules:
             # Check category match
-            if case.category not in rule.when.category_in:
+            if rule.when.category_in and case.category not in rule.when.category_in:
                 continue
 
             # Check value thresholds with explicit boundary inclusivity
@@ -75,12 +75,7 @@ class RulesEngine:
                             continue
 
             # Check exception / condition flags
-            # If case has exception flags active (e.g. emergency / sole source),
-            # rule must explicitly match that flag. Standard rules cannot absorb
-            # unhandled emergency or sole source requests.
             flag_mismatch = False
-
-            # Explicit flags defined on rule
             for flag_key, expected_val in rule.when.flags.items():
                 case_flag_val = getattr(case, flag_key, None)
                 if case_flag_val != expected_val:
@@ -90,11 +85,19 @@ class RulesEngine:
             if flag_mismatch:
                 continue
 
-            # Exception check: if case has emergency=True but rule did not declare is_emergency: true
+            # If case does not have emergency, do not match emergency-only rules
+            if not case.is_emergency and rule.when.flags.get("is_emergency") is True:
+                continue
+
+            # If case has emergency=True, standard rules that don't declare emergency cannot match
             if case.is_emergency is True and not rule.when.flags.get("is_emergency", False):
                 continue
 
-            # Exception check: if case has sole_source=True but rule did not declare is_sole_source: true
+            # If case does not have sole_source, do not match sole-source-only rules
+            if not case.is_sole_source and rule.when.flags.get("is_sole_source") is True:
+                continue
+
+            # If case has sole_source=True, standard rules that don't declare sole_source cannot match
             if case.is_sole_source is True and not rule.when.flags.get("is_sole_source", False):
                 continue
 
@@ -126,15 +129,37 @@ class RulesEngine:
                 ],
             )
 
-        # Exactly one rule matched => DECIDED
+        # Exactly one rule matched
         matched = matching_rules[0]
+        rule_citations = matched.citations if matched.citations else ([matched.clause_id] if matched.clause_id else [])
+
+        # 4. Check quotations sufficiency if received count is provided
+        if (
+            matched.then.min_quotations > 0
+            and case.quotations_received is not None
+            and case.quotations_received < matched.then.min_quotations
+        ):
+            return RuleDecision(
+                status="ESCALATE",
+                matched_rule_id=matched.rule_id,
+                method=matched.then.method,
+                approver=matched.then.approver,
+                min_quotations=matched.then.min_quotations,
+                committee_required=matched.then.committee_required,
+                required_documents=matched.then.documents,
+                citations=rule_citations,
+                escalation_reasons=[
+                    f"Insufficient quotations: {case.quotations_received} quotation(s) received, but minimum {matched.then.min_quotations} required for {matched.then.method} under {', '.join(rule_citations)}."
+                ],
+            )
+
         return RuleDecision(
             status="DECIDED",
             matched_rule_id=matched.rule_id,
             method=matched.then.method,
             approver=matched.then.approver,
             min_quotations=matched.then.min_quotations,
-            committee_required=matched.then.committee,
+            committee_required=matched.then.committee_required,
             required_documents=matched.then.documents,
-            citations=[matched.clause_id],
+            citations=rule_citations,
         )

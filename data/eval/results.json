@@ -1,5 +1,5 @@
 {
-  "num_queries": 9,
+  "num_queries": 10,
   "methods": {
     "bm25": {
       "recall@1": 1.0,
@@ -8,16 +8,16 @@
       "mrr": 1.0
     },
     "dense": {
-      "recall@1": 1.0,
-      "recall@3": 1.0,
-      "recall@5": 1.0,
-      "mrr": 1.0
+      "recall@1": 0.5,
+      "recall@3": 0.9,
+      "recall@5": 0.9,
+      "mrr": 0.6833
     },
     "hybrid": {
-      "recall@1": 1.0,
+      "recall@1": 0.8,
       "recall@3": 1.0,
       "recall@5": 1.0,
-      "mrr": 1.0
+      "mrr": 0.9
     }
   }
 }
