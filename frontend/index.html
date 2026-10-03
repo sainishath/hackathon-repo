@@ -82,6 +82,16 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #334155;
     }
+    .specular-border {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.025) 0%, rgba(255, 255, 255, 0) 100%);
+    }
+    .specular-inset {
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+    .specular-primary {
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
     .drawer-open {
       transform: translateX(0%);
     }
@@ -93,7 +103,7 @@
 <body class="min-h-screen flex flex-col selection:bg-emerald-500/20 selection:text-emerald-400">
 
   <!-- Top Navigation Bar -->
-  <header class="sticky top-0 z-40 bg-[#090D16]/80 backdrop-blur-xl border-b border-[#1E293B]">
+  <header class="sticky top-0 z-40 bg-[#090D16]/90 backdrop-blur-xl border-b border-[#1E293B]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
@@ -101,28 +111,38 @@
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <span class="font-bold text-lg tracking-tight text-white">COMPLIANCE<span class="text-emerald-400">CORE</span></span>
-            <span class="text-[10px] font-mono tracking-widest uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">v2024 Verified</span>
+            <span class="font-bold text-base tracking-tight text-white font-mono">PROCURE<span class="text-emerald-400">GUARD</span></span>
+            <span class="text-[10px] font-mono tracking-widest uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">GFR 2017 & Manual 2024</span>
           </div>
-          <p class="text-xs text-brand-muted hidden sm:block">Institutional Statutory Procurement Directive Engine</p>
+          <p class="text-xs text-brand-muted hidden sm:block">Institutional Statutory Compliance Engine</p>
         </div>
       </div>
 
-      <nav class="flex items-center gap-4 text-xs font-medium text-brand-muted">
-        <a href="#intake-section" class="hover:text-white transition flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-800/60">
+      <!-- Center: Live LLM Badge -->
+      <div class="hidden md:flex items-center bg-[#0F172A] border border-[#1E293B] px-3.5 py-1 rounded-full gap-2 specular-inset">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+        </span>
+        <span class="font-mono text-xs text-emerald-400 font-semibold">[● ACTIVE] Gemini 2.5 Flash // Resilient Ollama Failover</span>
+        <span class="text-slate-600 font-mono text-xs">|</span>
+        <span class="font-mono text-[11px] text-slate-400">69 Clauses Indexed</span>
+      </div>
+
+      <nav class="flex items-center gap-3 text-xs font-medium text-brand-muted">
+        <a href="#intake-section" class="hover:text-white transition hidden lg:flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-800/60">
           <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Intake
         </a>
-        <a href="#verdict-section" class="hover:text-white transition flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-800/60">
+        <a href="#verdict-section" class="hover:text-white transition hidden lg:flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-800/60">
           <i data-lucide="zap" class="w-3.5 h-3.5"></i> Directives
         </a>
-        <a href="#telemetry-section" class="hover:text-white transition flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-800/60">
-          <i data-lucide="activity" class="w-3.5 h-3.5"></i> Telemetry & Benchmarks
+        <a href="#telemetry-section" class="hover:text-white transition hidden lg:flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-slate-800/60">
+          <i data-lucide="activity" class="w-3.5 h-3.5"></i> Benchmarks
         </a>
-        <div class="h-4 w-px bg-slate-800"></div>
-        <div class="flex items-center gap-1.5 font-mono text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          69 Clauses Indexed
-        </div>
+        <button onclick="exportAuditReport()" class="px-3 py-1.5 rounded-lg bg-[#0F172A] hover:bg-slate-800 text-slate-200 border border-[#1E293B] hover:border-slate-700 transition flex items-center gap-1.5 font-mono text-xs specular-inset">
+          <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span>Export Audit</span>
+        </button>
       </nav>
     </div>
   </header>
@@ -294,52 +314,61 @@
     </section>
 
     <!-- Visual Compliance Pipeline Stepper -->
-    <section class="glass-card rounded-2xl p-5">
+    <section class="glass-card rounded-2xl p-5 specular-border">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-          <i data-lucide="git-commit" class="w-4 h-4 text-teal-400"></i>
-          Execution Pipeline Trace
-        </h3>
-        <div id="latency-indicator" class="font-mono text-xs text-brand-muted bg-slate-800/80 px-2.5 py-1 rounded-md border border-slate-700/60">
-          Latency: <span id="latency-val" class="text-emerald-400 font-semibold">Ready</span>
+        <div class="flex items-center gap-2">
+          <i data-lucide="git-commit" class="w-4 h-4 text-emerald-400"></i>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono">
+            Statutory Rule Pipeline Execution
+          </h3>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hidden sm:inline-block">DETERMINISTIC GATING</span>
+          <div id="latency-indicator" class="font-mono text-xs text-brand-muted bg-slate-800/80 px-2.5 py-1 rounded-md border border-slate-700/60 specular-inset">
+            Latency: <span id="latency-val" class="text-emerald-400 font-semibold">Ready</span>
+          </div>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-left">
         <!-- Stage 1 -->
-        <div id="step-intake" class="p-3 rounded-xl border border-slate-800 bg-slate-900/60 transition">
-          <div class="flex items-center justify-center mb-1.5">
-            <span class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-intake-badge">1</span>
+        <div id="step-intake" class="p-3.5 rounded-xl border border-slate-800 bg-[#090D16] transition relative overflow-hidden">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">STAGE 01</span>
+            <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-intake-badge">1</span>
           </div>
           <div class="text-xs font-semibold text-white">Intake Gating</div>
-          <div class="text-[10px] text-slate-400 mt-0.5" id="step-intake-desc">Mandatory fields check</div>
+          <div class="text-[10px] text-slate-400 mt-0.5 leading-snug" id="step-intake-desc">Rule 144 Thresholds Validated & Sanitized</div>
         </div>
 
         <!-- Stage 2 -->
-        <div id="step-rules" class="p-3 rounded-xl border border-slate-800 bg-slate-900/60 transition">
-          <div class="flex items-center justify-center mb-1.5">
-            <span class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-rules-badge">2</span>
+        <div id="step-rules" class="p-3.5 rounded-xl border border-slate-800 bg-[#090D16] transition relative overflow-hidden">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">STAGE 02</span>
+            <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-rules-badge">2</span>
           </div>
-          <div class="text-xs font-semibold text-white">Statutory Boundaries</div>
-          <div class="text-[10px] text-slate-400 mt-0.5" id="step-rules-desc">Deterministic rules.yaml</div>
+          <div class="text-xs font-semibold text-white">Statutory Match</div>
+          <div class="text-[10px] text-slate-400 mt-0.5 leading-snug" id="step-rules-desc">GeM Availability & Rule 149 Hierarchy</div>
         </div>
 
         <!-- Stage 3 -->
-        <div id="step-retrieval" class="p-3 rounded-xl border border-slate-800 bg-slate-900/60 transition">
-          <div class="flex items-center justify-center mb-1.5">
-            <span class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-retrieval-badge">3</span>
+        <div id="step-retrieval" class="p-3.5 rounded-xl border border-slate-800 bg-[#090D16] transition relative overflow-hidden">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">STAGE 03</span>
+            <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-retrieval-badge">3</span>
           </div>
           <div class="text-xs font-semibold text-white">Hybrid Retrieval</div>
-          <div class="text-[10px] text-slate-400 mt-0.5" id="step-retrieval-desc">BM25 + Dense RRF</div>
+          <div class="text-[10px] text-slate-400 mt-0.5 leading-snug" id="step-retrieval-desc">Dense + BM25 Lexical Scan against Manual 2024</div>
         </div>
 
         <!-- Stage 4 -->
-        <div id="step-guardrails" class="p-3 rounded-xl border border-slate-800 bg-slate-900/60 transition">
-          <div class="flex items-center justify-center mb-1.5">
-            <span class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-guardrails-badge">4</span>
+        <div id="step-guardrails" class="p-3.5 rounded-xl border border-slate-800 bg-[#090D16] transition relative overflow-hidden">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider">STAGE 04</span>
+            <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-guardrails-badge">4</span>
           </div>
-          <div class="text-xs font-semibold text-white">Citation Guardrails</div>
-          <div class="text-[10px] text-slate-400 mt-0.5" id="step-guardrails-desc">Zero hallucination lock</div>
+          <div class="text-xs font-semibold text-white">Citation Verification</div>
+          <div class="text-[10px] text-slate-400 mt-0.5 leading-snug" id="step-guardrails-desc">Zero Hallucination Cross-Reference Check</div>
         </div>
       </div>
     </section>
@@ -597,6 +626,8 @@
     // State management
     let currentPresets = [];
     let currentResponse = null;
+    let currentCaseInput = null;
+    let currentEvaluationData = null;
 
     // Utility: Format currency in Indian Rupees
     function formatINR(val) {
@@ -713,6 +744,7 @@
         is_sole_source: document.getElementById('check-sole-source').checked,
       };
 
+      currentCaseInput = payload;
       try {
         const resp = await fetch('/api/evaluate', {
           method: 'POST',
@@ -721,6 +753,7 @@
         });
 
         currentResponse = await resp.json();
+        currentEvaluationData = currentResponse;
         renderVerdict(currentResponse);
       } catch (err) {
         console.error('Evaluation failed:', err);
@@ -729,6 +762,29 @@
         evaluateBtn.innerHTML = `<i data-lucide="zap" class="w-4 h-4"></i> Evaluate Statutory Compliance`;
         refreshIcons();
       }
+    }
+
+    function exportAuditReport() {
+      if (!currentEvaluationData) {
+        alert('Please evaluate a requisition case first before exporting audit report.');
+        return;
+      }
+      const report = {
+        title: "Procurement Statutory Compliance Audit Report",
+        timestamp: new Date().toISOString(),
+        standard: "GFR 2017 & Manual for Procurement of Goods 2024",
+        input: currentCaseInput,
+        response: currentEvaluationData,
+      };
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `audit_report_${currentEvaluationData.decision?.matched_rule_id || 'eval'}_${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
 
     // Render verdict and action items

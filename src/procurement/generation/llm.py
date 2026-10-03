@@ -106,8 +106,21 @@ class MockLLMClient(BaseLLMClient):
         return mock_payload
 
 
+def _clean_json_str(text: str) -> str:
+    """Strips markdown code blocks and whitespace from JSON string."""
+    text = text.strip()
+    if text.startswith("```"):
+        lines = text.splitlines()
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        text = "\n".join(lines).strip()
+    return text
+
+
 class OllamaLLMClient(BaseLLMClient):
-    """Client for local Ollama instance with structured JSON output."""
+    """Client for local Ollama instance with structured JSON output and Mock fallback."""
 
     def __init__(self, base_url: Optional[str] = None, model: Optional[str] = None):
         self.base_url = (base_url or settings.ollama_base_url).rstrip("/")
@@ -128,51 +141,76 @@ class OllamaLLMClient(BaseLLMClient):
             "prompt": f"{system_instruction}\n\nUser Request:\n{prompt}",
             "stream": False,
             "format": "json",
+            "options": {"temperature": 0.1},
         }
 
         try:
-            resp = requests.post(f"{self.base_url}/api/generate", json=payload, timeout=60)
+            resp = requests.post(f"{self.base_url}/api/generate", json=payload, timeout=45)
             resp.raise_for_status()
             res_json = resp.json()
             raw_response = res_json.get("response", "{}")
-            return json.loads(raw_response)
+            clean_text = _clean_json_str(raw_response)
+            return json.loads(clean_text)
         except Exception as e:
-            # Fallback to mock on connection error
             print(f"[WARN] Ollama request failed ({e}); falling back to mock provider.")
             return MockLLMClient().generate_json(prompt, response_schema)
 
 
 class GeminiLLMClient(BaseLLMClient):
-    """Client for Google Gemini API with structured JSON output."""
+    """Client for Google Gemini API with resilient fallback to Ollama and Mock."""
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         self.api_key = api_key or settings.gemini_api_key
+        self.model = model or settings.gemini_model
 
     def generate_json(self, prompt: str, response_schema: type[BaseModel]) -> dict[str, Any]:
         if not self.api_key:
-            print("[WARN] GEMINI_API_KEY not set; falling back to mock provider.")
-            return MockLLMClient().generate_json(prompt, response_schema)
+            print("[WARN] GEMINI_API_KEY not set; falling back to Ollama client.")
+            return OllamaLLMClient().generate_json(prompt, response_schema)
 
+        schema_json = json.dumps(response_schema.model_json_schema())
+        full_prompt = (
+            f"You are an Institutional Procurement Assistant adhering to statutory procurement rules.\n"
+            f"Output strictly valid JSON conforming to schema:\n{schema_json}\n\n"
+            f"{prompt}"
+        )
+
+        # 1. Try modern google.genai SDK
         try:
-            # Check for google.generativeai or google-genai
-            import google.generativeai as genai
-            genai.configure(api_key=self.api_key)
-            model = genai.GenerativeModel("gemini-1.5-flash")
-            
-            schema_json = json.dumps(response_schema.model_json_schema())
-            full_prompt = (
-                f"You are an Institutional Procurement Assistant.\n"
-                f"Output strictly valid JSON conforming to schema:\n{schema_json}\n\n"
-                f"{prompt}"
+            from google import genai
+            from google.genai import types
+
+            client = genai.Client(api_key=self.api_key)
+            resp = client.models.generate_content(
+                model=self.model,
+                contents=full_prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    temperature=0.1,
+                ),
             )
-            resp = model.generate_content(
-                full_prompt,
-                generation_config={"response_mime_type": "application/json"},
-            )
-            return json.loads(resp.text)
-        except Exception as e:
-            print(f"[WARN] Gemini API request failed ({e}); falling back to mock provider.")
-            return MockLLMClient().generate_json(prompt, response_schema)
+            clean_text = _clean_json_str(resp.text)
+            return json.loads(clean_text)
+        except Exception as e_genai:
+            print(f"[WARN] google.genai request failed ({e_genai}); attempting legacy google.generativeai...")
+            try:
+                import warnings
+
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", category=FutureWarning)
+                    import google.generativeai as legacy_genai
+
+                legacy_genai.configure(api_key=self.api_key)
+                model_inst = legacy_genai.GenerativeModel(self.model)
+                resp = model_inst.generate_content(
+                    full_prompt,
+                    generation_config={"response_mime_type": "application/json", "temperature": 0.1},
+                )
+                clean_text = _clean_json_str(resp.text)
+                return json.loads(clean_text)
+            except Exception as e_legacy:
+                print(f"[WARN] Gemini API request failed ({e_legacy}); falling back to Ollama provider.")
+                return OllamaLLMClient().generate_json(prompt, response_schema)
 
 
 def get_llm_client(provider: Optional[str] = None) -> BaseLLMClient:

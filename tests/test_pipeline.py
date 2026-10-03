@@ -5,9 +5,12 @@ from procurement.models import CaseInput
 from procurement.pipeline import ProcurementPipeline
 
 
+from procurement.generation.llm import MockLLMClient
+
+
 @pytest.fixture
 def pipeline():
-    return ProcurementPipeline()
+    return ProcurementPipeline(llm_client=MockLLMClient())
 
 
 def test_pipeline_all_10_cases(pipeline):
