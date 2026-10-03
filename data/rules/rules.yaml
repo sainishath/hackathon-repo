@@ -1,0 +1,147 @@
+description: "[FIXTURE] Institutional Procurement Rules for Testing and Scaffolding"
+
+required_inputs:
+  - category
+  - estimated_value_inr
+  - item_description
+
+rules:
+  - rule_id: "FIXTURE:RULE-101"
+    clause_id: "FIXTURE-POLICY:1.1"
+    description: "[FIXTURE] Direct purchase of goods up to INR 25,000 without quotation"
+    when:
+      category_in: ["goods"]
+      value_min: 0.0
+      value_max: 25000.0
+      min_inclusive: true
+      max_inclusive: true
+      flags: {}
+    then:
+      method: "Direct Purchase without Quotation"
+      approver: "Head of Department"
+      min_quotations: 0
+      committee: false
+      documents:
+        - "Sanction Order"
+        - "Invoice / Cash Receipt"
+
+  - rule_id: "FIXTURE:RULE-102"
+    clause_id: "FIXTURE-POLICY:1.2"
+    description: "[FIXTURE] Purchase of goods from INR 25,001 to INR 250,000 via Local Purchase Committee"
+    when:
+      category_in: ["goods"]
+      value_min: 25000.0
+      value_max: 250000.0
+      min_inclusive: false
+      max_inclusive: true
+      flags: {}
+    then:
+      method: "Purchase by Local Purchase Committee (LPC)"
+      approver: "Dean / Associate Director"
+      min_quotations: 3
+      committee: true
+      documents:
+        - "LPC Constitution Form"
+        - "Market Survey Report"
+        - "Sanction Order"
+
+  - rule_id: "FIXTURE:RULE-103"
+    clause_id: "FIXTURE-POLICY:1.3"
+    description: "[FIXTURE] Purchase of goods from INR 250,001 to INR 2,500,000 via Limited Tender Enquiry"
+    when:
+      category_in: ["goods"]
+      value_min: 250000.0
+      value_max: 2500000.0
+      min_inclusive: false
+      max_inclusive: true
+      flags: {}
+    then:
+      method: "Limited Tender Enquiry (LTE)"
+      approver: "Registrar / Financial Adviser"
+      min_quotations: 3
+      committee: true
+      documents:
+        - "Tender Document"
+        - "Vendor List"
+        - "Comparative Statement"
+        - "Technical Evaluation Report"
+
+  - rule_id: "FIXTURE:RULE-104"
+    clause_id: "FIXTURE-POLICY:1.4"
+    description: "[FIXTURE] High value goods procurement exceeding INR 2,500,000 via Advertised Open Tender"
+    when:
+      category_in: ["goods"]
+      value_min: 2500000.0
+      value_max: null
+      min_inclusive: false
+      max_inclusive: true
+      flags: {}
+    then:
+      method: "Advertised Open Tender"
+      approver: "Director / Board of Governors"
+      min_quotations: 3
+      committee: true
+      documents:
+        - "Open Tender Notice"
+        - "CPP Portal Publication Proof"
+        - "Technical Evaluation Matrix"
+        - "Sanction Order"
+
+  - rule_id: "FIXTURE:RULE-201"
+    clause_id: "FIXTURE-POLICY:2.1"
+    description: "[FIXTURE] Consulting or outsourced services up to INR 100,000 via direct contract"
+    when:
+      category_in: ["services"]
+      value_min: 0.0
+      value_max: 100000.0
+      min_inclusive: true
+      max_inclusive: true
+      flags: {}
+    then:
+      method: "Direct Service Engagement"
+      approver: "Head of Department"
+      min_quotations: 0
+      committee: false
+      documents:
+        - "Service Order Form"
+        - "Vendor Work Completion Certificate"
+
+  - rule_id: "FIXTURE:RULE-202"
+    clause_id: "FIXTURE-POLICY:2.2"
+    description: "[FIXTURE] Services between INR 100,001 and INR 1,000,000 via Limited Service Tender"
+    when:
+      category_in: ["services"]
+      value_min: 100000.0
+      value_max: 1000000.0
+      min_inclusive: false
+      max_inclusive: true
+      flags: {}
+    then:
+      method: "Limited Service Tender"
+      approver: "Registrar"
+      min_quotations: 3
+      committee: true
+      documents:
+        - "Scope of Work (SOW)"
+        - "Quotation Comparative Table"
+        - "Service Agreement"
+
+  - rule_id: "FIXTURE:RULE-301"
+    clause_id: "FIXTURE-POLICY:3.1"
+    description: "[FIXTURE] Minor repair or civil/electrical works up to INR 500,000"
+    when:
+      category_in: ["works"]
+      value_min: 0.0
+      value_max: 500000.0
+      min_inclusive: true
+      max_inclusive: true
+      flags: {}
+    then:
+      method: "Minor Works Quotation"
+      approver: "Estate Officer"
+      min_quotations: 3
+      committee: false
+      documents:
+        - "Work Estimate"
+        - "Measurement Sheet"
+        - "Completion Certificate"
