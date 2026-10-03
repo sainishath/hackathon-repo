@@ -101,6 +101,7 @@ class MockLLMClient(BaseLLMClient):
             "checklist": checklist,
             "missing_info": decision_data.get("missing_fields", []),
             "escalations": decision_data.get("escalation_reasons", []),
+            "_provider_used": "deterministic-mock",
         }
 
         return mock_payload
@@ -150,7 +151,9 @@ class OllamaLLMClient(BaseLLMClient):
             res_json = resp.json()
             raw_response = res_json.get("response", "{}")
             clean_text = _clean_json_str(raw_response)
-            return json.loads(clean_text)
+            data = json.loads(clean_text)
+            data["_provider_used"] = f"ollama/{self.model}"
+            return data
         except Exception as e:
             print(f"[WARN] Ollama request failed ({e}); falling back to mock provider.")
             return MockLLMClient().generate_json(prompt, response_schema)
@@ -168,7 +171,7 @@ class GeminiLLMClient(BaseLLMClient):
             print("[WARN] GEMINI_API_KEY not set; falling back to Ollama client.")
             return OllamaLLMClient().generate_json(prompt, response_schema)
 
-        schema_json = json.dumps(response_schema.model_json_schema())
+        schema_json = json.dumps(response_schema.model_json_schema()) if response_schema else "{}"
         full_prompt = (
             f"You are an Institutional Procurement Assistant adhering to statutory procurement rules.\n"
             f"Output strictly valid JSON conforming to schema:\n{schema_json}\n\n"
@@ -190,7 +193,9 @@ class GeminiLLMClient(BaseLLMClient):
                 ),
             )
             clean_text = _clean_json_str(resp.text)
-            return json.loads(clean_text)
+            data = json.loads(clean_text)
+            data["_provider_used"] = "gemini-2.5-flash"
+            return data
         except Exception as e_genai:
             print(f"[WARN] google.genai request failed ({e_genai}); attempting legacy google.generativeai...")
             try:
@@ -207,10 +212,93 @@ class GeminiLLMClient(BaseLLMClient):
                     generation_config={"response_mime_type": "application/json", "temperature": 0.1},
                 )
                 clean_text = _clean_json_str(resp.text)
-                return json.loads(clean_text)
+                data = json.loads(clean_text)
+                data["_provider_used"] = "gemini-2.5-flash"
+                return data
             except Exception as e_legacy:
                 print(f"[WARN] Gemini API request failed ({e_legacy}); falling back to Ollama provider.")
                 return OllamaLLMClient().generate_json(prompt, response_schema)
+
+
+class ResilientLLMClient(BaseLLMClient):
+    """3-tier fallback LLM client trying Gemini -> Ollama -> Mock."""
+
+    def __init__(self):
+        self.provider = os.getenv("LLM_PROVIDER", "gemini").lower()
+        self.gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
+        self.gemini_model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+        self.ollama_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        self.ollama_model = os.getenv("OLLAMA_MODEL", "llama3")
+
+    def generate(self, prompt: str, system_prompt: str = "") -> dict[str, Any]:
+        """Tries Gemini -> Ollama -> Mock fallback."""
+        # 1. Try Gemini
+        if self.gemini_key:
+            try:
+                import google.generativeai as genai
+                genai.configure(api_key=self.gemini_key)
+                model = genai.GenerativeModel(
+                    model_name=self.gemini_model,
+                    system_instruction=system_prompt if system_prompt else None
+                )
+                response = model.generate_content(
+                    prompt,
+                    generation_config={"response_mime_type": "application/json"}
+                )
+                text = response.text.strip()
+                if text.startswith("```"):
+                    text = text.split("```")[1]
+                    if text.startswith("json"):
+                        text = text[4:]
+                data = json.loads(text.strip())
+                data["_provider_used"] = "gemini-2.5-flash"
+                return data
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).warning(f"Gemini generation failed: {e}. Falling back to Ollama.")
+
+        # 2. Try Ollama (Local)
+        try:
+            import requests
+            full_prompt = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
+            res = requests.post(
+                f"{self.ollama_url}/api/generate",
+                json={
+                    "model": self.ollama_model,
+                    "prompt": full_prompt,
+                    "format": "json",
+                    "stream": False
+                },
+                timeout=8
+            )
+            if res.status_code == 200:
+                data = json.loads(res.json().get("response", "{}"))
+                data["_provider_used"] = f"ollama/{self.ollama_model}"
+                return data
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"Ollama generation failed: {e}. Falling back to Mock.")
+
+        # 3. Deterministic Mock Fallback
+        mock_data = {
+            "summary": "Procurement evaluated deterministically against statutory rules.",
+            "steps": [
+                {"n": 1, "action": "Submit standard requisition indent with technical specifications.", "clause_ids": ["FORM-INDENT"]},
+                {"n": 2, "action": "Obtain sanction approval from the designated financial authority.", "clause_ids": ["INST-2026-DP1"]},
+                {"n": 3, "action": "Verify GeM portal availability report (GeMAR&PTS) prior to outside purchase.", "clause_ids": ["MGP-2024-C4.12"]}
+            ],
+            "checklist": [
+                {"item": "Procurement Indent Form", "form_id": "FORM-INDENT", "mandatory": True, "clause_ids": ["FORM-INDENT"]},
+                {"item": "Local Purchase Certificate", "form_id": "FORM-PCC", "mandatory": False, "clause_ids": ["FORM-PCC"]}
+            ],
+            "missing_info": [],
+            "escalations": [],
+            "_provider_used": "deterministic-mock"
+        }
+        return mock_data
+
+    def generate_json(self, prompt: str, response_schema: Any = None) -> dict[str, Any]:
+        return self.generate(prompt)
 
 
 def get_llm_client(provider: Optional[str] = None) -> BaseLLMClient:
@@ -220,4 +308,6 @@ def get_llm_client(provider: Optional[str] = None) -> BaseLLMClient:
         return GeminiLLMClient()
     elif prov == "ollama":
         return OllamaLLMClient()
+    elif prov == "resilient":
+        return ResilientLLMClient()
     return MockLLMClient()

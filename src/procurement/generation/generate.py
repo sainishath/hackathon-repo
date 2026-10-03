@@ -36,6 +36,8 @@ def generate_response(
             steps=[],
             checklist=[],
         )
+    if isinstance(raw_payload, dict) and "_provider_used" in raw_payload:
+        response.provider_used = raw_payload["_provider_used"]
 
     # STRICT RULE: engine decision is authoritative and copied directly, never LLM-written
     response.decision = decision
@@ -59,6 +61,9 @@ def generate_response(
         retry_response = AssistantResponse.model_validate(raw_retry)
     except Exception:
         retry_response = response
+
+    if isinstance(raw_retry, dict) and "_provider_used" in raw_retry:
+        retry_response.provider_used = raw_retry["_provider_used"]
 
     retry_response.decision = decision
     retry_valid, retry_errors = validate_citations(retry_response, allowed_citations)

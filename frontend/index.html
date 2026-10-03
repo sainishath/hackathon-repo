@@ -196,7 +196,11 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-emerald-500/25 selection:text-emerald-300">
+<body class="min-h-screen flex flex-col selection:bg-emerald-500/25 selection:text-emerald-300 relative">
+
+  <!-- Ambient Kinetic Glow Spheres -->
+  <div id="ambient-sphere-1" class="fixed top-[-10vw] left-[-10vw] w-[45vw] h-[45vw] rounded-full bg-emerald-500/10 blur-[120px] pointer-events-none transition-transform duration-700 ease-out z-0"></div>
+  <div id="ambient-sphere-2" class="fixed top-[40vh] right-[-10vw] w-[40vw] h-[40vw] rounded-full bg-cyan-500/10 blur-[130px] pointer-events-none transition-transform duration-700 ease-out z-0"></div>
 
   <!-- Scroll Progress Indicator -->
   <div id="scroll-progress"></div>
@@ -217,7 +221,7 @@
               Ruleset: Goods Manual 2024 & GFR 2017
             </span>
           </div>
-          <p class="text-[11px] text-slate-400 hidden sm:block">Government & University Procurement Guide</p>
+          <p class="text-[11px] text-slate-400 hidden sm:block">Government & University Procurement Compliance Guide</p>
         </div>
       </div>
 
@@ -277,7 +281,7 @@
       </h1>
 
       <p class="max-w-3xl mx-auto text-sm sm:text-base text-slate-400 font-normal leading-relaxed">
-        Get step-by-step instructions, official rules, and ready-to-use forms based on Government of India <strong class="text-slate-200">GFR 2017</strong>, the <strong class="text-slate-200">2024 Goods Manual</strong>, and <strong class="text-slate-200">Institute Delegation of Powers</strong>.
+        Step-by-step rules, approval limits, and required forms based on <strong class="text-slate-200">GFR 2017</strong>, the <strong class="text-slate-200">2024 Goods Manual</strong>, and <strong class="text-slate-200">Campus Delegation of Powers</strong>.
       </p>
 
       <!-- Key Performance Badges -->
@@ -402,7 +406,7 @@
               Interactive Statutory Threshold Slider:
             </span>
             <span id="slider-threshold-rule-badge" class="font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-              Direct Purchase (≤ ₹50,000)
+              Direct Purchase (HoD)
             </span>
           </div>
 
@@ -503,7 +507,7 @@
             <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">STAGE 01</span>
             <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-intake-badge">1</span>
           </div>
-          <div class="text-xs font-semibold text-white">1. Check Input</div>
+          <div class="text-xs font-semibold text-white">01 Input Check</div>
           <div class="text-[10px] text-slate-400 mt-0.5 leading-snug" id="step-intake-desc">Verifies category, price, and required information.</div>
         </div>
 
@@ -513,7 +517,7 @@
             <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">STAGE 02</span>
             <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-rules-badge">2</span>
           </div>
-          <div class="text-xs font-semibold text-white">2. Match Rule</div>
+          <div class="text-xs font-semibold text-white">02 Amount Limits</div>
           <div class="text-[10px] text-slate-400 mt-0.5 leading-snug" id="step-rules-desc">Finds the exact statutory limit (GFR 2017 & 2024 Goods Manual).</div>
         </div>
 
@@ -523,7 +527,7 @@
             <span class="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">STAGE 03</span>
             <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-retrieval-badge">3</span>
           </div>
-          <div class="text-xs font-semibold text-white">3. Find Clauses</div>
+          <div class="text-xs font-semibold text-white">03 Policy Search</div>
           <div class="text-[10px] text-slate-400 mt-0.5 leading-snug" id="step-retrieval-desc">Retrieves exact clauses and mandatory forms from the 69-document index.</div>
         </div>
 
@@ -533,7 +537,7 @@
             <span class="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider">STAGE 04</span>
             <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center border border-slate-700" id="step-guardrails-badge">4</span>
           </div>
-          <div class="text-xs font-semibold text-white">4. Verify Citations</div>
+          <div class="text-xs font-semibold text-white">04 Citation Check</div>
           <div class="text-[10px] text-slate-400 mt-0.5 leading-snug" id="step-guardrails-desc">Ensures the AI output quotes only real, verified rules—no hallucinations.</div>
         </div>
       </div>
@@ -544,7 +548,7 @@
       <div class="pb-1">
         <h2 class="text-lg font-bold text-white flex items-center gap-2">
           <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400"></i>
-          3. Purchase Decision & Next Steps
+          3. Official Decision & Action Plan
         </h2>
         <p class="text-xs text-slate-400 mt-0.5">Deterministic compliance result, required approvers, and step-by-step instructions.</p>
       </div>
@@ -557,10 +561,14 @@
               <i data-lucide="check-circle-2" class="w-8 h-8"></i>
             </div>
             <div>
-              <div class="flex items-center gap-2">
+              <div class="flex flex-wrap items-center gap-2">
                 <span class="text-xs font-mono tracking-widest uppercase text-slate-400">Statutory Determination:</span>
                 <span id="verdict-status-badge" class="font-extrabold text-sm px-3 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                   APPROVED TO PROCEED (Rule Matched)
+                </span>
+                <span id="verdict-provider-badge" class="font-mono text-xs px-2.5 py-0.5 rounded-full bg-slate-800/80 text-slate-300 border border-slate-700/80 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span>⚡ Powered by Gemini 2.5 Flash</span>
                 </span>
               </div>
               <h2 id="verdict-method-title" class="text-xl sm:text-2xl font-bold text-white mt-1">
@@ -688,7 +696,7 @@
         <div>
           <h2 class="text-lg font-bold text-white flex items-center gap-2">
             <i data-lucide="cpu" class="w-5 h-5 text-cyan-400"></i>
-            4. System Accuracy & Automated Tests
+            4. Accuracy & Automated Verification
           </h2>
           <p class="text-xs text-slate-400 mt-0.5">Verifying search accuracy against official government rules.</p>
         </div>
@@ -857,11 +865,16 @@
     }
     requestAnimationFrame(raf);
 
-    // Update scroll progress bar
+    // Update scroll progress bar & ambient sphere parallax
     lenis.on('scroll', (e) => {
       const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
       const progress = scrollHeight > 0 ? (e.scroll / scrollHeight) * 100 : 0;
       document.getElementById('scroll-progress').style.width = `${progress}%`;
+
+      const s1 = document.getElementById('ambient-sphere-1');
+      const s2 = document.getElementById('ambient-sphere-2');
+      if (s1) s1.style.transform = `translate3d(0, ${e.scroll * 0.12}px, 0)`;
+      if (s2) s2.style.transform = `translate3d(0, ${-e.scroll * 0.10}px, 0)`;
     });
 
     // 2. Initialize GSAP ScrollTrigger Animations
@@ -1018,17 +1031,17 @@
 
         // Update Slider Badge
         if (num <= 50000) {
-          sliderBadge.textContent = 'Direct Purchase (≤ ₹50,000)';
+          sliderBadge.textContent = 'Direct Purchase (HoD)';
           sliderBadge.className = 'font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
         } else if (num <= 500000) {
-          sliderBadge.textContent = 'Local Purchase Committee (₹50k – ₹5L)';
-          sliderBadge.className = 'font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/30';
+          sliderBadge.textContent = 'Local Purchase Committee (Dean)';
+          sliderBadge.className = 'font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30';
         } else if (num <= 2500000) {
-          sliderBadge.textContent = 'Limited Tender Enquiry (₹5L – ₹25L)';
-          sliderBadge.className = 'font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/30';
-        } else {
-          sliderBadge.textContent = 'Advertised Open Tender (> ₹25L)';
+          sliderBadge.textContent = 'Limited Tender (Director)';
           sliderBadge.className = 'font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/30';
+        } else {
+          sliderBadge.textContent = 'Advertised Tender (Director / BoG)';
+          sliderBadge.className = 'font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/30';
         }
       }
     }
@@ -1206,11 +1219,36 @@
         statusIcon.innerHTML = `<i data-lucide="alert-triangle" class="w-8 h-8"></i>`;
         methodTitle.textContent = 'Information Missing';
       } else {
-        statusBadge.textContent = 'NEEDS HIGHER APPROVAL / SPECIAL EXCEPTION';
+        statusBadge.textContent = 'ESCALATE TO HIGHER AUTHORITY';
         statusBadge.className = 'font-extrabold text-sm px-3 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30';
         statusIcon.className = 'w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0';
         statusIcon.innerHTML = `<i data-lucide="alert-octagon" class="w-8 h-8"></i>`;
         methodTitle.textContent = 'Higher Approval Required';
+      }
+
+      // Active Provider Telemetry Badge & Navbar HUD
+      const providerBadge = document.getElementById('verdict-provider-badge');
+      const hudIndicator = document.getElementById('hud-model-indicator');
+      const provUsed = ((data._provider_used || data.provider_used || '') + '').toLowerCase();
+
+      if (provUsed.includes('gemini')) {
+        if (providerBadge) {
+          providerBadge.className = 'font-mono text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5';
+          providerBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span>⚡ Powered by Gemini 2.5 Flash</span>`;
+        }
+        if (hudIndicator) hudIndicator.textContent = 'AI Engine: Gemini 2.5 Flash (Cloud)';
+      } else if (provUsed.includes('ollama') || provUsed.includes('llama')) {
+        if (providerBadge) {
+          providerBadge.className = 'font-mono text-xs px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center gap-1.5';
+          providerBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span><span>🦙 Powered by Local Ollama Llama 3</span>`;
+        }
+        if (hudIndicator) hudIndicator.textContent = 'AI Engine: Local Ollama (Llama 3)';
+      } else {
+        if (providerBadge) {
+          providerBadge.className = 'font-mono text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 flex items-center gap-1.5';
+          providerBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span>🛡️ Deterministic Compliance Engine</span>`;
+        }
+        if (hudIndicator) hudIndicator.textContent = 'AI Engine: Deterministic Engine';
       }
 
       // Populate metrics

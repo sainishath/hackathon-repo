@@ -94,7 +94,7 @@ class ChecklistItem(BaseModel):
 
 
 class AssistantResponse(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
 
     decision: RuleDecision = Field(
         description="Deterministic decision copied strictly from rules engine, never LLM-written"
@@ -106,3 +106,9 @@ class AssistantResponse(BaseModel):
     )
     missing_info: list[str] = Field(default_factory=list, description="Information missing for a decision")
     escalations: list[str] = Field(default_factory=list, description="Exceptions requiring human escalation")
+    provider_used: Optional[str] = Field(
+        default="deterministic-mock",
+        alias="_provider_used",
+        serialization_alias="_provider_used",
+        description="LLM provider or engine used",
+    )

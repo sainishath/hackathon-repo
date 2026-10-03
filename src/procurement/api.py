@@ -59,8 +59,9 @@ def evaluate_case(case_input: CaseInput):
     t1 = time.perf_counter()
 
     latency_ms = round((t1 - t0) * 1000, 2)
-    result = response.model_dump()
+    result = response.model_dump(by_alias=True)
     result["latency_ms"] = latency_ms
+    result["_provider_used"] = getattr(response, "provider_used", None) or result.get("_provider_used", "deterministic-mock")
 
     # Detailed stage statuses for the visual pipeline stepper
     dec = response.decision
