@@ -12,6 +12,7 @@ from procurement.config import settings
 from procurement.models import CaseInput, AssistantResponse, Clause
 from procurement.pipeline import ProcurementPipeline
 from procurement.retrieval.evaluate import run_evaluation
+from procurement.generation.extractor import extract_requisition_input
 
 app = FastAPI(
     title="Institutional Procurement Compliance Engine",
@@ -55,7 +56,27 @@ def startup_event():
 def evaluate_case(case_input: CaseInput):
     """Evaluate procurement case against deterministic rules and generate grounded directives."""
     t0 = time.perf_counter()
-    response: AssistantResponse = pipeline.process(case_input)
+
+    extracted_input: Optional[CaseInput] = None
+    if case_input.text and case_input.text.strip():
+        extracted = extract_requisition_input(case_input.text)
+        extracted_input = extracted
+
+        # Overlay any explicitly supplied non-default fields
+        explicit_fields = case_input.model_fields_set - {"text"}
+        merged_data = extracted.model_dump()
+        for field in explicit_fields:
+            val = getattr(case_input, field)
+            if val is not None:
+                merged_data[field] = val
+        eval_case = CaseInput(**merged_data)
+    else:
+        eval_case = case_input
+
+    response: AssistantResponse = pipeline.process(eval_case)
+    if extracted_input:
+        response.extracted_input = extracted_input
+
     t1 = time.perf_counter()
 
     latency_ms = round((t1 - t0) * 1000, 2)
@@ -73,6 +94,14 @@ def evaluate_case(case_input: CaseInput):
     }
     result["stages"] = stages
     return result
+
+
+@app.post("/api/extract")
+def extract_case(payload: dict[str, Any]):
+    """Extract structured CaseInput parameters from natural language freeform text."""
+    text = payload.get("text", "")
+    extracted = extract_requisition_input(text)
+    return extracted.model_dump()
 
 
 @app.get("/api/presets")

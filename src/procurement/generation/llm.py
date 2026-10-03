@@ -21,8 +21,20 @@ class MockLLMClient(BaseLLMClient):
     """Deterministic offline mock LLM client for tests and offline usage."""
 
     def generate_json(self, prompt: str, response_schema: type[BaseModel]) -> dict[str, Any]:
+        # Extract case summary if embedded in the prompt
+        case_match = re.search(
+            r"CASE_INPUT:\s*(\{.+?\})\s*DECISION_BLOCK_JSON:",
+            prompt,
+            re.DOTALL,
+        )
+        case_data: dict[str, Any] = {}
+        if case_match:
+            try:
+                case_data = json.loads(case_match.group(1))
+            except Exception:
+                pass
+
         # Extract decision block if embedded in the prompt
-        # We construct a high-fidelity compliant mock AssistantResponse
         decision_match = re.search(
             r"DECISION_BLOCK_JSON:\s*(\{.+?\})\s*(?:ALLOWED_CITATIONS|RETRIEVED_CLAUSES):",
             prompt,
@@ -41,6 +53,36 @@ class MockLLMClient(BaseLLMClient):
         approver = decision_data.get("approver", "Competent Financial Authority")
         min_quotes = decision_data.get("min_quotations", 3)
         req_docs = decision_data.get("required_documents", ["Sanction Order"])
+        matched_rule = decision_data.get("matched_rule_id", "GFR-RULE")
+
+        item_desc = case_data.get("item_description") or "Procurement Requisition"
+        est_val = case_data.get("estimated_value_inr")
+        val_str = f"₹{est_val:,.2f}" if est_val is not None else "Unspecified Amount"
+        dept_str = case_data.get("department") or "Department"
+        is_sole = case_data.get("is_sole_source", False)
+        is_urg = case_data.get("is_emergency", False)
+
+        # Build 5-section compliance memo
+        edge_cases = []
+        if is_sole:
+            edge_cases.append("Sole source procurement requires formal Proprietary Article Certificate (PAC) approved by Director.")
+        if is_urg:
+            edge_cases.append("Emergency procurement invoked: ex-post ratification required within 48 hours.")
+        if est_val and est_val <= 500000:
+            edge_cases.append("Value falls within Local Purchase Committee revised ceiling (up to ₹5,00,000 under Goods Manual 2024).")
+        if not edge_cases:
+            edge_cases.append("Ensure GeM portal availability is checked (GeMAR&PTS) prior to outside market purchase.")
+
+        memo = (
+            f"### Statutory Procurement Compliance Memo\n\n"
+            f"**1. Requisition Understanding**: Requisition for '{item_desc}' estimated at {val_str} ({dept_str}). "
+            f"{'Flagged as urgent emergency. ' if is_urg else ''}{'Flagged as single-vendor proprietary procurement. ' if is_sole else ''}\n\n"
+            f"**2. Why This Rule Applies**: Process governed under {matched_rule} authorizing '{method}'. "
+            f"Statutory authority for sanction order issuance is the {approver}.\n\n"
+            f"**3. Identified Issues / Edge Cases**: {' '.join(edge_cases)}\n\n"
+            f"**4. Step-by-Step Action Roadmap**: Verify budget allocation under {dept_str}, obtain {min_quotes} quotation(s) or PAC certificate, prepare comparative evaluation statement, and submit for financial sanction to {approver}.\n\n"
+            f"**5. Required Forms & Approvals**: Mandatory completion of {', '.join(req_docs)} with formal sanction by {approver}."
+        )
 
         # Steps citing valid authoritative citations
         steps = [
@@ -97,6 +139,7 @@ class MockLLMClient(BaseLLMClient):
         mock_payload = {
             "decision": decision_data,
             "summary": f"Procurement authorized via {method}. Financial sanction required from {approver}.",
+            "compliance_memo": memo,
             "steps": steps,
             "checklist": checklist,
             "missing_info": decision_data.get("missing_fields", []),
@@ -281,22 +324,7 @@ class ResilientLLMClient(BaseLLMClient):
             logging.getLogger(__name__).warning(f"Ollama generation failed: {e}. Falling back to Mock.")
 
         # 3. Deterministic Mock Fallback
-        mock_data = {
-            "summary": "Procurement evaluated deterministically against statutory rules.",
-            "steps": [
-                {"n": 1, "action": "Submit standard requisition indent with technical specifications.", "clause_ids": ["FORM-INDENT"]},
-                {"n": 2, "action": "Obtain sanction approval from the designated financial authority.", "clause_ids": ["INST-2026-DP1"]},
-                {"n": 3, "action": "Verify GeM portal availability report (GeMAR&PTS) prior to outside purchase.", "clause_ids": ["MGP-2024-C4.12"]}
-            ],
-            "checklist": [
-                {"item": "Procurement Indent Form", "form_id": "FORM-INDENT", "mandatory": True, "clause_ids": ["FORM-INDENT"]},
-                {"item": "Local Purchase Certificate", "form_id": "FORM-PCC", "mandatory": False, "clause_ids": ["FORM-PCC"]}
-            ],
-            "missing_info": [],
-            "escalations": [],
-            "_provider_used": "deterministic-mock"
-        }
-        return mock_data
+        return MockLLMClient().generate_json(prompt, BaseModel)
 
     def generate_json(self, prompt: str, response_schema: Any = None) -> dict[str, Any]:
         return self.generate(prompt)

@@ -37,9 +37,20 @@ class ProcurementPipeline:
                 if decision.status == "NEEDS_INFO"
                 else f"Escalation required: {'; '.join(decision.escalation_reasons)}"
             )
+            item_desc = case.item_description or "Requisition"
+            val_str = f"₹{case.estimated_value_inr:,.2f}" if case.estimated_value_inr is not None else "Unspecified Amount"
+            memo = (
+                f"### Statutory Procurement Compliance Memo\n\n"
+                f"**1. Requisition Understanding**: Requisition for '{item_desc}' estimated at {val_str}.\n\n"
+                f"**2. Why This Rule Applies**: Intake gating identified status **{decision.status}**.\n\n"
+                f"**3. Identified Issues / Edge Cases**: Mandatory parameters are missing or require administrative escalation: {summary_msg}.\n\n"
+                f"**4. Step-by-Step Action Roadmap**: Provide missing procurement parameters (e.g. estimated financial value) or consult competent authority.\n\n"
+                f"**5. Required Forms & Approvals**: Complete standard indent form with approved cost estimate."
+            )
             return AssistantResponse(
                 decision=decision,
                 summary=summary_msg,
+                compliance_memo=memo,
                 steps=[],
                 checklist=[],
                 missing_info=decision.missing_fields,

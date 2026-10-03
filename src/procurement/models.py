@@ -35,6 +35,9 @@ class ScoredClause(BaseModel):
 class CaseInput(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
+    text: Optional[str] = Field(
+        default=None, description="Freeform natural language requisition description"
+    )
     item_description: Optional[str] = Field(
         default=None, description="Detailed description of the item or service to procure"
     )
@@ -106,6 +109,12 @@ class AssistantResponse(BaseModel):
     )
     missing_info: list[str] = Field(default_factory=list, description="Information missing for a decision")
     escalations: list[str] = Field(default_factory=list, description="Exceptions requiring human escalation")
+    compliance_memo: Optional[str] = Field(
+        default=None, description="Comprehensive plain-English explanatory compliance memo"
+    )
+    extracted_input: Optional[CaseInput] = Field(
+        default=None, description="Structured CaseInput extracted from natural language text"
+    )
     provider_used: Optional[str] = Field(
         default="deterministic-mock",
         alias="_provider_used",

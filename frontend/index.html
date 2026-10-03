@@ -345,6 +345,87 @@
         </div>
       </div>
 
+      <!-- Natural Language Freeform Intake Area -->
+      <div class="mt-4 p-5 rounded-2xl bg-gradient-to-b from-[#0F172A] to-[#070A11] border border-emerald-500/30 specular-inset space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                ✨ AI Requisition Intake
+              </span>
+              <span class="text-xs font-bold text-white">Freeform Natural Language Request</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Type what you need in plain English. The engine detects price, category, urgency, and sole-source rules automatically.</p>
+          </div>
+          <span class="text-[10px] font-mono text-slate-500 hidden sm:inline">Auto-Extracts INR • Emergency • Sole Source</span>
+        </div>
+
+        <!-- Quick Sample Text Pills -->
+        <div class="flex flex-wrap items-center gap-2 pt-1">
+          <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mr-1">Quick Scenarios:</span>
+          <button type="button" class="nl-preset-pill text-[11px] px-2.5 py-1 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-emerald-500/50 hover:bg-slate-800 text-slate-300 hover:text-white transition cursor-pointer" data-text="Emergency breakdown repair for server cooling unit costing ₹45,000 urgently required in Server Room.">
+            🚨 Emergency Server Repair (₹45,000, Urgent)
+          </button>
+          <button type="button" class="nl-preset-pill text-[11px] px-2.5 py-1 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-emerald-500/50 hover:bg-slate-800 text-slate-300 hover:text-white transition cursor-pointer" data-text="Need 3 lab workstations for 4.8 lakhs from single vendor NVIDIA under Institute Research Grant.">
+            💻 Lab Workstations (4.8 Lakhs, Single Vendor PAC)
+          </button>
+          <button type="button" class="nl-preset-pill text-[11px] px-2.5 py-1 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-emerald-500/50 hover:bg-slate-800 text-slate-300 hover:text-white transition cursor-pointer" data-text="Procurement of classroom dual-desk furniture worth ₹18 Lakhs for Academic Block. 4 quotations received.">
+            🪑 Classroom Desks (₹18 Lakhs, Open Tender)
+          </button>
+          <button type="button" class="nl-preset-pill text-[11px] px-2.5 py-1 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-emerald-500/50 hover:bg-slate-800 text-slate-300 hover:text-white transition cursor-pointer" data-text="Need specialized curriculum consultancy advisory services for accreditation audit.">
+            ⚖️ Consultant Hiring (No price specified)
+          </button>
+        </div>
+
+        <div class="relative">
+          <textarea id="nl-requisition-input" rows="3" placeholder="e.g., Urgently need 3 high-performance GPU workstations for AI Lab costing approx 4.8 lakhs from NVIDIA single vendor under Institute Research Grant" class="w-full bg-[#070A11] border border-[#1E293B] focus:border-emerald-500 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none transition leading-relaxed"></textarea>
+        </div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+          <button id="btn-nl-analyze" type="button" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-black font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition transform active:scale-95 cursor-pointer">
+            <i data-lucide="sparkles" class="w-4 h-4 text-black"></i>
+            Analyze Request & Check Compliance
+          </button>
+
+          <button id="toggle-manual-fields-btn" type="button" class="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 transition">
+            <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span id="manual-fields-toggle-text">Adjust Individual Fields</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform" id="manual-chevron"></i>
+          </button>
+        </div>
+
+        <!-- Extracted Parameters Badge Bar Accordion -->
+        <div id="extracted-badge-bar" class="p-3.5 rounded-xl bg-[#070A11]/90 border border-[#1E293B] space-y-2">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+              <i data-lucide="check-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+              Extracted Parameters:
+            </span>
+            <span id="extracted-status-label" class="text-[10px] font-mono text-emerald-400">Synced</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="badge-ext-value" class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+              Value: <strong class="text-emerald-400" id="badge-ext-val-text">₹ 50,000</strong>
+            </span>
+            <span id="badge-ext-category" class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+              Category: <strong class="text-white" id="badge-ext-cat-text">goods</strong>
+            </span>
+            <span id="badge-ext-sole" class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+              Sole Source: <strong class="text-slate-400" id="badge-ext-sole-text">No</strong>
+            </span>
+            <span id="badge-ext-urg" class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+              Emergency: <strong class="text-slate-400" id="badge-ext-urg-text">No</strong>
+            </span>
+            <span id="badge-ext-quotes" class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+              Quotes: <strong class="text-white" id="badge-ext-quotes-text">0</strong>
+            </span>
+            <span id="badge-ext-dept" class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+              Dept: <strong class="text-slate-400" id="badge-ext-dept-text">—</strong>
+            </span>
+          </div>
+        </div>
+      </div>
+
       <!-- Form Inputs Grid -->
       <form id="evaluation-form" class="mt-5 space-y-6">
         
@@ -644,6 +725,77 @@
           <p id="verdict-summary" class="text-sm text-slate-200 leading-relaxed font-normal">
             Procurement authorized via Direct Purchase without Quotation up to ₹50,000 INR. Sanction approval lies with Head of Department (HoD).
           </p>
+        </div>
+
+        <!-- Plain-English Statutory Compliance Memo Card -->
+        <div id="compliance-memo-card" class="mt-6 pt-5 border-t border-[#1E293B] space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="p-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+              </span>
+              <div>
+                <h3 class="text-sm font-bold text-white">Statutory Procurement Compliance Memo</h3>
+                <p class="text-[11px] text-slate-400">Official explanatory narrative for department heads, auditors & sanctioning authorities</p>
+              </div>
+            </div>
+            <button id="copy-memo-btn" type="button" class="text-xs text-slate-300 hover:text-white px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 hover:bg-slate-800 transition flex items-center gap-1.5 self-start sm:self-auto cursor-pointer">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Memo
+            </button>
+          </div>
+
+          <!-- Structured Memo Callout Cards Grid -->
+          <div id="memo-sections-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+            <!-- 1. Requisition Understanding -->
+            <div class="p-3.5 rounded-xl bg-[#070A11] border border-slate-800/80 specular-inset">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-400 mb-1">
+                <span>📋</span> 1. Requisition Understanding
+              </div>
+              <p id="memo-understanding-text" class="text-xs text-slate-300 leading-relaxed">
+                Requisition for consumables/equipment estimated at ₹50,000.00 from Mechanical Engineering.
+              </p>
+            </div>
+
+            <!-- 2. Why This Rule Applies -->
+            <div class="p-3.5 rounded-xl bg-[#070A11] border border-slate-800/80 specular-inset">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-teal-400 mb-1">
+                <span>⚖️</span> 2. Why This Rule Applies
+              </div>
+              <p id="memo-rule-text" class="text-xs text-slate-300 leading-relaxed">
+                Direct Purchase authorized under Goods Manual 2024 Rule 154 / Para 4.12. Threshold strictly within ₹50,000 ceiling.
+              </p>
+            </div>
+
+            <!-- 3. Identified Issues & Edge Cases -->
+            <div class="p-3.5 rounded-xl bg-[#070A11] border border-slate-800/80 specular-inset">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-amber-400 mb-1">
+                <span>⚠️</span> 3. Identified Issues / Precautions
+              </div>
+              <p id="memo-issues-text" class="text-xs text-slate-300 leading-relaxed">
+                Verify GeM portal availability report (GeMAR&PTS) prior to outside market purchase.
+              </p>
+            </div>
+
+            <!-- 4. Next Operational Steps -->
+            <div class="p-3.5 rounded-xl bg-[#070A11] border border-slate-800/80 specular-inset">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-cyan-400 mb-1">
+                <span>🚀</span> 4. Step-by-Step Action Roadmap
+              </div>
+              <p id="memo-roadmap-text" class="text-xs text-slate-300 leading-relaxed">
+                Issue local purchase requisition, verify items received in satisfactory condition, and submit PCC certificate.
+              </p>
+            </div>
+
+            <!-- 5. Mandatory Approvals & Forms (Span 2) -->
+            <div class="p-3.5 rounded-xl bg-[#070A11] border border-slate-800/80 specular-inset md:col-span-2">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-purple-400 mb-1">
+                <span>📝</span> 5. Mandatory Approvals & Forms
+              </div>
+              <p id="memo-forms-text" class="text-xs text-slate-300 leading-relaxed">
+                Mandatory submission of Form PCC (Purchase without Quotation Certificate) with approval from Head of Department (HoD).
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1123,7 +1275,171 @@
       submitEvaluation();
     }
 
-    // 8. Form Submission & API Evaluation
+    // 8. Natural Language Intake & Extraction Helpers
+    function parseINRTextClient(text) {
+      if (!text) return null;
+      const lower = text.toLowerCase();
+      const m_cr = lower.match(/(?:rs\.?|inr|₹)?\s*(\d+(?:\.\d+)?)\s*(?:crores?|cr)\b/);
+      if (m_cr) return parseFloat(m_cr[1]) * 10000000;
+      const m_lakh = lower.match(/(?:rs\.?|inr|₹)?\s*(\d+(?:\.\d+)?)\s*(?:lakhs?|lakh|l)\b/);
+      if (m_lakh) return parseFloat(m_lakh[1]) * 100000;
+      const m_k = lower.match(/(?:rs\.?|inr|₹)?\s*(\d+(?:\.\d+)?)\s*k\b/);
+      if (m_k) return parseFloat(m_k[1]) * 1000;
+      const m_curr = lower.match(/(?:rs\.?|inr|₹)\s*([\d,]+(?:\.\d+)?)/);
+      if (m_curr) {
+        const val = parseFloat(m_curr[1].replace(/,/g, ''));
+        if (!isNaN(val)) return val;
+      }
+      const m_num = lower.match(/([\d,]+(?:\.\d+)?)\s*(?:rupees|inr|rs)\b/);
+      if (m_num) {
+        const val = parseFloat(m_num[1].replace(/,/g, ''));
+        if (!isNaN(val)) return val;
+      }
+      return null;
+    }
+
+    function extractClientFromText(text) {
+      if (!text || !text.trim()) {
+        return {
+          estimated_value_inr: null,
+          category: 'goods',
+          is_sole_source: false,
+          is_emergency: false,
+          quotations_received: 0,
+          department: null,
+          item_description: '',
+        };
+      }
+      const lower = text.toLowerCase();
+      const amount = parseINRTextClient(text);
+      const isSole = /\b(single vendor|single supplier|sole source|proprietary|single brand|pac|single manufacturer|oem only)\b/i.test(lower);
+      const isUrg = /\b(urgent|urgently|emergency|breakdown|critical repair|immediately|asap)\b/i.test(lower);
+      let cat = 'goods';
+      if (/\b(consultancy|consultant|specialized advisory|advisory services)\b/i.test(lower)) cat = 'Consultancy';
+      else if (/\b(civil repair|civil works|construction|renovation|fabrication|painting)\b/i.test(lower)) cat = 'works';
+      else if (/\b(annual maintenance|amc|housekeeping|outsourced service|courier service|catering)\b/i.test(lower)) cat = 'services';
+
+      let quotes = isSole ? 1 : 0;
+      const qm = lower.match(/(\d+)\s*quotations?/);
+      if (qm) quotes = parseInt(qm[1], 10);
+
+      let dept = null;
+      const dm = text.match(/\b([A-Za-z\s]+?(?:engineering|department|dept|lab|laboratory|center))\b/i);
+      if (dm && dm[1].trim().length < 40) dept = dm[1].trim();
+
+      return {
+        estimated_value_inr: amount,
+        category: cat,
+        is_sole_source: isSole,
+        is_emergency: isUrg,
+        quotations_received: quotes,
+        department: dept,
+        item_description: text.trim().substring(0, 120),
+      };
+    }
+
+    function syncExtractedBadges(extracted) {
+      if (!extracted) return;
+      const valEl = document.getElementById('badge-ext-val-text');
+      const catEl = document.getElementById('badge-ext-cat-text');
+      const soleEl = document.getElementById('badge-ext-sole-text');
+      const urgEl = document.getElementById('badge-ext-urg-text');
+      const quotesEl = document.getElementById('badge-ext-quotes-text');
+      const deptEl = document.getElementById('badge-ext-dept-text');
+
+      if (valEl) {
+        if (extracted.estimated_value_inr !== null && extracted.estimated_value_inr !== undefined) {
+          valEl.textContent = formatINR(extracted.estimated_value_inr);
+          valEl.className = 'text-emerald-400 font-bold';
+        } else {
+          valEl.textContent = 'None (Missing)';
+          valEl.className = 'text-amber-400 font-bold';
+        }
+      }
+      if (catEl) catEl.textContent = extracted.category || 'goods';
+      if (soleEl) {
+        soleEl.textContent = extracted.is_sole_source ? 'Yes (PAC)' : 'No';
+        soleEl.className = extracted.is_sole_source ? 'text-amber-300 font-semibold' : 'text-slate-400';
+      }
+      if (urgEl) {
+        urgEl.textContent = extracted.is_emergency ? 'Yes (Urgent)' : 'No';
+        urgEl.className = extracted.is_emergency ? 'text-rose-400 font-semibold' : 'text-slate-400';
+      }
+      if (quotesEl) quotesEl.textContent = extracted.quotations_received ?? 0;
+      if (deptEl) deptEl.textContent = extracted.department || '—';
+    }
+
+    function populateManualInputsFromExtracted(ext) {
+      if (!ext) return;
+      if (ext.estimated_value_inr !== null && ext.estimated_value_inr !== undefined) {
+        omitValueCheck.checked = false;
+        valueInput.value = ext.estimated_value_inr;
+      } else {
+        omitValueCheck.checked = true;
+      }
+      updateValueDisplay();
+
+      if (ext.category) document.getElementById('input-category').value = ext.category;
+      if (ext.item_description) document.getElementById('input-description').value = ext.item_description;
+      if (ext.department) document.getElementById('input-department').value = ext.department;
+      if (ext.funding_source) document.getElementById('input-funding').value = ext.funding_source;
+      document.getElementById('check-emergency').checked = Boolean(ext.is_emergency);
+      document.getElementById('check-sole-source').checked = Boolean(ext.is_sole_source);
+      if (ext.quotations_received !== null && ext.quotations_received !== undefined) {
+        document.getElementById('input-quotes').value = ext.quotations_received;
+      }
+    }
+
+    async function submitEvaluationWithText(text) {
+      if (!text || !text.trim()) {
+        submitEvaluation();
+        return;
+      }
+
+      const analyzeBtn = document.getElementById('btn-nl-analyze');
+      if (analyzeBtn) {
+        analyzeBtn.disabled = true;
+        analyzeBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i> Parsing & Checking...`;
+        refreshIcons();
+      }
+
+      // Fast local sync on badges
+      const localExt = extractClientFromText(text);
+      syncExtractedBadges(localExt);
+      populateManualInputsFromExtracted(localExt);
+
+      try {
+        const resp = await fetch('/api/evaluate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: text.trim() }),
+        });
+
+        currentResponse = await resp.json();
+        currentEvaluationData = currentResponse;
+
+        if (currentResponse.extracted_input) {
+          syncExtractedBadges(currentResponse.extracted_input);
+          populateManualInputsFromExtracted(currentResponse.extracted_input);
+        }
+
+        renderVerdict(currentResponse);
+
+        // Smooth scroll to verdict section
+        const vSec = document.getElementById('verdict-section');
+        if (vSec) vSec.scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        console.error('Text evaluation failed:', err);
+      } finally {
+        if (analyzeBtn) {
+          analyzeBtn.disabled = false;
+          analyzeBtn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 text-black"></i> Analyze Request & Check Compliance`;
+          refreshIcons();
+        }
+      }
+    }
+
+    // Form Submission & API Evaluation
     document.getElementById('evaluation-form').addEventListener('submit', (e) => {
       e.preventDefault();
       playTactileClick();
@@ -1135,6 +1451,16 @@
       omitValueCheck.checked = false;
       valueInput.value = 50000;
       updateValueDisplay();
+      const nlInput = document.getElementById('nl-requisition-input');
+      if (nlInput) nlInput.value = '';
+      syncExtractedBadges({
+        estimated_value_inr: 50000,
+        category: 'goods',
+        is_sole_source: false,
+        is_emergency: false,
+        quotations_received: 0,
+        department: null,
+      });
       playTactileClick();
     });
 
@@ -1279,6 +1605,32 @@
       } else {
         needsBanner.classList.add('hidden');
       }
+
+      // Populate Statutory Compliance Memo
+      const memo = data.compliance_memo || '';
+      function extractMemoPart(titlePattern, fallback) {
+        if (!memo) return fallback;
+        const regex = new RegExp(`\\*\\*\\d+\\.\\s*${titlePattern}[^:]*\\*\\*:\\s*([\\s\\S]*?)(?=\\n\\n\\*\\*\\d+\\.|\$)`, 'i');
+        const m = memo.match(regex);
+        return m ? m[1].trim() : fallback;
+      }
+
+      const undText = extractMemoPart('Requisition Understanding', data.summary || 'Procurement evaluated deterministically against statutory rules.');
+      const ruleText = extractMemoPart('Why This Rule Applies', `Governed under statutory code ${dec.matched_rule_id || 'RULE'}. Sanction authority designated as ${dec.approver || 'Competent Authority'}.`);
+      const issuesText = extractMemoPart('Identified Issues', dec.status === 'NEEDS_INFO' ? `Mandatory parameter(s) missing: ${(dec.missing_fields || []).join(', ')}` : (dec.status === 'ESCALATE' ? `Statutory exception triggered: ${(dec.escalation_reasons || []).join('; ')}` : 'Verify GeM availability report before proceeding.'));
+      const roadmapText = extractMemoPart('Step-by-Step Action Roadmap|Next Operational Steps|Operational Roadmap', `Obtain required quotation(s), prepare comparative evaluation statement, and submit for financial sanction to ${dec.approver || 'Competent Authority'}.`);
+      const formsText = extractMemoPart('Required Forms & Approvals|Mandatory Approvals & Forms', `Mandatory submission of ${(dec.required_documents || ['Indent Form']).join(', ')} with formal sanction by ${dec.approver || 'Competent Authority'}.`);
+
+      const elUnd = document.getElementById('memo-understanding-text');
+      const elRule = document.getElementById('memo-rule-text');
+      const elIss = document.getElementById('memo-issues-text');
+      const elRoad = document.getElementById('memo-roadmap-text');
+      const elForms = document.getElementById('memo-forms-text');
+      if (elUnd) elUnd.textContent = undText;
+      if (elRule) elRule.textContent = ruleText;
+      if (elIss) elIss.textContent = issuesText;
+      if (elRoad) elRoad.textContent = roadmapText;
+      if (elForms) elForms.textContent = formsText;
 
       // Steps sequence
       const stepsContainer = document.getElementById('steps-container');
@@ -1607,11 +1959,90 @@
       URL.revokeObjectURL(url);
     }
 
+    // 14. Initialize Natural Language Requisition Event Listeners
+    function initNLEventListeners() {
+      const nlTextarea = document.getElementById('nl-requisition-input');
+      const nlAnalyzeBtn = document.getElementById('btn-nl-analyze');
+      if (nlTextarea) {
+        nlTextarea.addEventListener('input', (e) => {
+          const ext = extractClientFromText(e.target.value);
+          syncExtractedBadges(ext);
+          const statusLabel = document.getElementById('extracted-status-label');
+          if (statusLabel) statusLabel.textContent = 'Typing...';
+        });
+        nlTextarea.addEventListener('blur', (e) => {
+          const ext = extractClientFromText(e.target.value);
+          syncExtractedBadges(ext);
+          populateManualInputsFromExtracted(ext);
+          const statusLabel = document.getElementById('extracted-status-label');
+          if (statusLabel) statusLabel.textContent = 'Synced';
+        });
+      }
+
+      if (nlAnalyzeBtn) {
+        nlAnalyzeBtn.addEventListener('click', () => {
+          playTactileClick();
+          const text = nlTextarea ? nlTextarea.value : '';
+          submitEvaluationWithText(text);
+        });
+      }
+
+      document.querySelectorAll('.nl-preset-pill').forEach((pill) => {
+        pill.addEventListener('click', () => {
+          playTactileClick();
+          const text = pill.dataset.text || pill.textContent;
+          if (nlTextarea) nlTextarea.value = text;
+          submitEvaluationWithText(text);
+        });
+      });
+
+      const toggleManualBtn = document.getElementById('toggle-manual-fields-btn');
+      const manualForm = document.getElementById('evaluation-form');
+      const manualChevron = document.getElementById('manual-chevron');
+      const manualToggleText = document.getElementById('manual-fields-toggle-text');
+      let isManualVisible = true;
+
+      if (toggleManualBtn && manualForm) {
+        toggleManualBtn.addEventListener('click', () => {
+          isManualVisible = !isManualVisible;
+          if (isManualVisible) {
+            manualForm.style.display = 'block';
+            if (manualChevron) manualChevron.style.transform = 'rotate(0deg)';
+            if (manualToggleText) manualToggleText.textContent = 'Hide Individual Fields';
+          } else {
+            manualForm.style.display = 'none';
+            if (manualChevron) manualChevron.style.transform = 'rotate(-90deg)';
+            if (manualToggleText) manualToggleText.textContent = 'Adjust Individual Fields';
+          }
+        });
+      }
+
+      const copyMemoBtn = document.getElementById('copy-memo-btn');
+      if (copyMemoBtn) {
+        copyMemoBtn.addEventListener('click', () => {
+          const u = document.getElementById('memo-understanding-text')?.textContent || '';
+          const r = document.getElementById('memo-rule-text')?.textContent || '';
+          const i = document.getElementById('memo-issues-text')?.textContent || '';
+          const rd = document.getElementById('memo-roadmap-text')?.textContent || '';
+          const f = document.getElementById('memo-forms-text')?.textContent || '';
+          const fullMemo = currentResponse?.compliance_memo || 
+            `### Statutory Procurement Compliance Memo\n\n**1. Requisition Understanding**: ${u}\n\n**2. Why This Rule Applies**: ${r}\n\n**3. Identified Issues / Precautions**: ${i}\n\n**4. Step-by-Step Action Roadmap**: ${rd}\n\n**5. Mandatory Approvals & Forms**: ${f}`;
+          navigator.clipboard.writeText(fullMemo).then(() => {
+            const orig = copyMemoBtn.innerHTML;
+            copyMemoBtn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Copied!`;
+            refreshIcons();
+            setTimeout(() => { copyMemoBtn.innerHTML = orig; refreshIcons(); }, 2000);
+          });
+        });
+      }
+    }
+
     // Initialize Page
     window.addEventListener('DOMContentLoaded', async () => {
       refreshIcons();
       updateValueDisplay();
       initScrollAnimations();
+      initNLEventListeners();
       await loadPresets();
       await loadTelemetry();
       submitEvaluation();
